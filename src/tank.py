@@ -2,6 +2,7 @@ import OPi.GPIO as GPIO
 from time import sleep
 from threading import Lock
 import warnings
+import time
 
 class Motor:
     def __init__(self):
@@ -17,17 +18,11 @@ class Motor:
         GPIO.setup(self.right_motor_pwm_pin1, GPIO.OUT)
         GPIO.setup(self.right_motor_pwm_pin2, GPIO.OUT)
 
-        # Create PWM instances for motor speed control
-        self.left_motor_pwm1 = GPIO.PWM(self.left_motor_pwm_pin1, 1000)  # 1kHz frequency
-        self.left_motor_pwm2 = GPIO.PWM(self.left_motor_pwm_pin2, 1000)  # 1kHz frequency
-        self.right_motor_pwm1 = GPIO.PWM(self.right_motor_pwm_pin1, 1000)  # 1kHz frequency
-        self.right_motor_pwm2 = GPIO.PWM(self.right_motor_pwm_pin2, 1000)  # 1kHz frequency
-
-        # Start PWM with 0% duty cycle (motors are off initially)
-        self.left_motor_pwm1.start(0)
-        self.left_motor_pwm2.start(0)
-        self.right_motor_pwm1.start(0)
-        self.right_motor_pwm2.start(0)
+        # Initialize the motor pins
+        GPIO.output(self.left_motor_pwm_pin1, GPIO.LOW)
+        GPIO.output(self.left_motor_pwm_pin2, GPIO.LOW)
+        GPIO.output(self.right_motor_pwm_pin1, GPIO.LOW)
+        GPIO.output(self.right_motor_pwm_pin2, GPIO.LOW)
 
     def duty_range(self, duty1, duty2):
         """Ensure the duty cycle values are within the valid range (0 to 100)."""
@@ -44,26 +39,34 @@ class Motor:
     def left_wheel(self, duty):
         """Control the left wheel based on the duty cycle value."""
         if duty > 0:
-            self.left_motor_pwm1.ChangeDutyCycle(duty)
-            self.left_motor_pwm2.ChangeDutyCycle(0)
+            GPIO.output(self.left_motor_pwm_pin1, GPIO.HIGH)
+            GPIO.output(self.left_motor_pwm_pin2, GPIO.LOW)
+            sleep(duty / 100.0)
+            GPIO.output(self.left_motor_pwm_pin1, GPIO.LOW)
         elif duty < 0:
-            self.left_motor_pwm1.ChangeDutyCycle(0)
-            self.left_motor_pwm2.ChangeDutyCycle(-duty)
+            GPIO.output(self.left_motor_pwm_pin1, GPIO.LOW)
+            GPIO.output(self.left_motor_pwm_pin2, GPIO.HIGH)
+            sleep(-duty / 100.0)
+            GPIO.output(self.left_motor_pwm_pin2, GPIO.LOW)
         else:
-            self.left_motor_pwm1.ChangeDutyCycle(0)
-            self.left_motor_pwm2.ChangeDutyCycle(0)
+            GPIO.output(self.left_motor_pwm_pin1, GPIO.LOW)
+            GPIO.output(self.left_motor_pwm_pin2, GPIO.LOW)
 
     def right_wheel(self, duty):
         """Control the right wheel based on the duty cycle value."""
         if duty > 0:
-            self.right_motor_pwm1.ChangeDutyCycle(duty)
-            self.right_motor_pwm2.ChangeDutyCycle(0)
+            GPIO.output(self.right_motor_pwm_pin1, GPIO.HIGH)
+            GPIO.output(self.right_motor_pwm_pin2, GPIO.LOW)
+            sleep(duty / 100.0)
+            GPIO.output(self.right_motor_pwm_pin1, GPIO.LOW)
         elif duty < 0:
-            self.right_motor_pwm1.ChangeDutyCycle(0)
-            self.right_motor_pwm2.ChangeDutyCycle(-duty)
+            GPIO.output(self.right_motor_pwm_pin1, GPIO.LOW)
+            GPIO.output(self.right_motor_pwm_pin2, GPIO.HIGH)
+            sleep(-duty / 100.0)
+            GPIO.output(self.right_motor_pwm_pin2, GPIO.LOW)
         else:
-            self.right_motor_pwm1.ChangeDutyCycle(0)
-            self.right_motor_pwm2.ChangeDutyCycle(0)
+            GPIO.output(self.right_motor_pwm_pin1, GPIO.LOW)
+            GPIO.output(self.right_motor_pwm_pin2, GPIO.LOW)
 
     def set_motor_model(self, duty1, duty2):
         """Set the duty cycle for both motors and ensure they are within the valid range."""
@@ -131,10 +134,6 @@ class Motor:
 
     def close(self):
         """Close the motors to release resources."""
-        self.left_motor_pwm1.stop()
-        self.left_motor_pwm2.stop()
-        self.right_motor_pwm1.stop()
-        self.right_motor_pwm2.stop()
         GPIO.cleanup()
 
 class Ultrasonic:
@@ -237,4 +236,4 @@ if __name__ == '__main__':
         motor.close()  # Close the motors to release resources
         ultrasonic.close()  # Cleanup ultrasonic sensor
         clamp.close()  # Cleanup clamp servos
-        print("Program interrupted, cleaning up.")
+        print('Program stopped safely.')
