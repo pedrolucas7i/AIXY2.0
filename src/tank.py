@@ -1,218 +1,240 @@
-# Import the Motor class from the gpiozero library
-from gpiozero import Motor as Motors, DistanceSensor, PWMSoftwareFallback, Servo
-from threading import Lock
+import OPi.GPIO as GPIO
 from time import sleep
+from threading import Lock
 import warnings
-import env
 
-# Define the tankMotor class to control the motors of a tank-like robot
 class Motor:
-    
     def __init__(self):
-        """Initialize the tankMotor class with GPIO pins for the left and right motors."""
-        self.left_motor = Motors(23, 24)  # Initialize the left motor with GPIO pins 23 and 24
-        self.right_motor = Motors(6, 5)   # Initialize the right motor with GPIO pins 6 and 5
+        """Initialize the Motor class with GPIO pins for the left and right motors."""
+        self.left_motor_pwm_pin1 = 23  # GPIO pin 23 (PWM)
+        self.left_motor_pwm_pin2 = 24  # GPIO pin 24 (PWM)
+        self.right_motor_pwm_pin1 = 6  # GPIO pin 6 (PWM)
+        self.right_motor_pwm_pin2 = 5  # GPIO pin 5 (PWM)
         self.lock = Lock()
+        GPIO.setmode(GPIO.BOARD)  # Use BOARD numbering for GPIO pins
+        GPIO.setup(self.left_motor_pwm_pin1, GPIO.OUT)
+        GPIO.setup(self.left_motor_pwm_pin2, GPIO.OUT)
+        GPIO.setup(self.right_motor_pwm_pin1, GPIO.OUT)
+        GPIO.setup(self.right_motor_pwm_pin2, GPIO.OUT)
+
+        # Create PWM instances for motor speed control
+        self.left_motor_pwm1 = GPIO.PWM(self.left_motor_pwm_pin1, 1000)  # 1kHz frequency
+        self.left_motor_pwm2 = GPIO.PWM(self.left_motor_pwm_pin2, 1000)  # 1kHz frequency
+        self.right_motor_pwm1 = GPIO.PWM(self.right_motor_pwm_pin1, 1000)  # 1kHz frequency
+        self.right_motor_pwm2 = GPIO.PWM(self.right_motor_pwm_pin2, 1000)  # 1kHz frequency
+
+        # Start PWM with 0% duty cycle (motors are off initially)
+        self.left_motor_pwm1.start(0)
+        self.left_motor_pwm2.start(0)
+        self.right_motor_pwm1.start(0)
+        self.right_motor_pwm2.start(0)
 
     def duty_range(self, duty1, duty2):
-        """Ensure the duty cycle values are within the valid range (-4095 to 4095)."""
-        if duty1 > 4095:
-            duty1 = 4095     # Cap the value at 4095 if it exceeds the maximum
-        elif duty1 < -4095:
-            duty1 = -4095    # Cap the value at -4095 if it falls below the minimum
-        
-        if duty2 > 4095:
-            duty2 = 4095     # Cap the value at 4095 if it exceeds the maximum
-        elif duty2 < -4095:
-            duty2 = -4095    # Cap the value at -4095 if it falls below the minimum
-        
-        return duty1, duty2  # Return the clamped duty cycle values
+        """Ensure the duty cycle values are within the valid range (0 to 100)."""
+        if duty1 > 100:
+            duty1 = 100
+        elif duty1 < 0:
+            duty1 = 0
+        if duty2 > 100:
+            duty2 = 100
+        elif duty2 < 0:
+            duty2 = 0
+        return duty1, duty2
 
-    def left_Wheel(self, duty):
+    def left_wheel(self, duty):
         """Control the left wheel based on the duty cycle value."""
         if duty > 0:
-            self.left_motor.forward(duty / 4096)    # Move the left motor forward
+            self.left_motor_pwm1.ChangeDutyCycle(duty)
+            self.left_motor_pwm2.ChangeDutyCycle(0)
         elif duty < 0:
-            self.left_motor.backward(-duty / 4096)  # Move the left motor backward
+            self.left_motor_pwm1.ChangeDutyCycle(0)
+            self.left_motor_pwm2.ChangeDutyCycle(-duty)
         else:
-            self.left_motor.stop()                  # Stop the left motor
+            self.left_motor_pwm1.ChangeDutyCycle(0)
+            self.left_motor_pwm2.ChangeDutyCycle(0)
 
-    def right_Wheel(self, duty):
+    def right_wheel(self, duty):
         """Control the right wheel based on the duty cycle value."""
         if duty > 0:
-            self.right_motor.forward(duty / 4096)    # Move the right motor forward
+            self.right_motor_pwm1.ChangeDutyCycle(duty)
+            self.right_motor_pwm2.ChangeDutyCycle(0)
         elif duty < 0:
-            self.right_motor.backward(-duty / 4096)  # Move the right motor backward
+            self.right_motor_pwm1.ChangeDutyCycle(0)
+            self.right_motor_pwm2.ChangeDutyCycle(-duty)
         else:
-            self.right_motor.stop()                  # Stop the right motor
+            self.right_motor_pwm1.ChangeDutyCycle(0)
+            self.right_motor_pwm2.ChangeDutyCycle(0)
 
-    def setMotorModel(self, duty1, duty2):
+    def set_motor_model(self, duty1, duty2):
         """Set the duty cycle for both motors and ensure they are within the valid range."""
         with self.lock:
             duty1, duty2 = self.duty_range(duty1, duty2)
-            self.left_Wheel(-duty1)
-            self.right_Wheel(-duty2)
+            self.left_wheel(duty1)
+            self.right_wheel(duty2)
 
-        
-    def driveBackward(self, speedLevel=1):
-        """Drive Backward with diferent speed levels"""
-        pwm_value = -800
-        
-        if speedLevel == 2:
-            pwm_value = -1200
-        elif speedLevel == 3:
-            pwm_value = -2640
-        elif speedLevel == 4:
-            pwm_value = -4000
-        
-        self.setMotorModel(pwm_value + int(env.LEFT_MOTOR_CORRECTION_PWM_VALUE), pwm_value + int(env.RIGHT_MOTOR_CORRECTION_PWM_VALUE))
-        
-    def driveRight(self, turnLevel=1):
-        """Drive Right with diferent turn levels"""
-        left_pwm = -800
-        right_pwm = 800
-        
-        if turnLevel == 2:
-            left_pwm = -1200
-            right_pwm = 1200
-        elif turnLevel == 3:
-            left_pwm = -2640
-            right_pwm = 2640
-        elif turnLevel == 4:
-            left_pwm = -4000
-            right_pwm = 4000
-        
-        self.setMotorModel(-left_pwm + int(env.LEFT_MOTOR_CORRECTION_PWM_VALUE), -right_pwm + int(env.RIGHT_MOTOR_CORRECTION_PWM_VALUE))
-        
-    def driveLeft(self, turnLevel=1):
-        """Drive Left with diferent turn levels"""
-        left_pwm = 800
-        right_pwm = -800
-        
-        if turnLevel == 2:
-            left_pwm = 1200
-            right_pwm = -1200
-        elif turnLevel == 3:
-            left_pwm = 2640
-            right_pwm = -2640
-        elif turnLevel == 4:
-            left_pwm = 4000
-            right_pwm = -4000
-        
-        self.setMotorModel(-left_pwm + int(env.LEFT_MOTOR_CORRECTION_PWM_VALUE), -right_pwm + int(env.RIGHT_MOTOR_CORRECTION_PWM_VALUE))
-        
-    def driveForward(self, speedLevel=1):
-        """Drive Backward with diferent speed levels"""
-        pwm_value = 800
-        
-        if speedLevel == 2:
-            pwm_value = 1200
-        elif speedLevel == 3:
-            pwm_value = 2640
-        elif speedLevel == 4:
-            pwm_value = 4000
-        
-        self.setMotorModel(pwm_value - int(env.LEFT_MOTOR_CORRECTION_PWM_VALUE), pwm_value - int(env.RIGHT_MOTOR_CORRECTION_PWM_VALUE))
-    
+    def drive_backward(self, speed_level=1):
+        """Drive backward with different speed levels."""
+        pwm_value = 50  # 50% duty cycle, this increases power to the motors
+        if speed_level == 2:
+            pwm_value = 70  # 70% duty cycle
+        elif speed_level == 3:
+            pwm_value = 85  # 85% duty cycle
+        elif speed_level == 4:
+            pwm_value = 100  # 100% duty cycle for max power
+        self.set_motor_model(pwm_value, pwm_value)
+
+    def drive_right(self, turn_level=1):
+        """Drive right with different turn levels."""
+        left_pwm = 50
+        right_pwm = 50
+        if turn_level == 2:
+            left_pwm = 70
+            right_pwm = 70
+        elif turn_level == 3:
+            left_pwm = 85
+            right_pwm = 85
+        elif turn_level == 4:
+            left_pwm = 100
+            right_pwm = 100
+        self.set_motor_model(left_pwm, right_pwm)
+
+    def drive_left(self, turn_level=1):
+        """Drive left with different turn levels."""
+        left_pwm = 50
+        right_pwm = 50
+        if turn_level == 2:
+            left_pwm = 70
+            right_pwm = 70
+        elif turn_level == 3:
+            left_pwm = 85
+            right_pwm = 85
+        elif turn_level == 4:
+            left_pwm = 100
+            right_pwm = 100
+        self.set_motor_model(left_pwm, right_pwm)
+
+    def drive_forward(self, speed_level=1):
+        """Drive forward with different speed levels."""
+        pwm_value = 50
+        if speed_level == 2:
+            pwm_value = 70
+        elif speed_level == 3:
+            pwm_value = 85
+        elif speed_level == 4:
+            pwm_value = 100  # Max power (100% duty cycle)
+        self.set_motor_model(pwm_value, pwm_value)
+
     def stop(self):
+        """Stop the motors."""
         with self.lock:
-            self.setMotorModel(0, 0) 
-    
+            self.set_motor_model(0, 0)
+
     def close(self):
         """Close the motors to release resources."""
-        self.left_motor.close()   # Close the left motor
-        self.right_motor.close()  # Close the right motor
-        
+        self.left_motor_pwm1.stop()
+        self.left_motor_pwm2.stop()
+        self.right_motor_pwm1.stop()
+        self.right_motor_pwm2.stop()
+        GPIO.cleanup()
+
 class Ultrasonic:
     def __init__(self):
-        # Initialize the Ultrasonic class and set up the distance sensor.
-        warnings.filterwarnings("ignore", category=PWMSoftwareFallback)  # Ignore PWM software fallback warnings
-        self.trigger_pin = 27  # Set the trigger pin number
-        self.echo_pin = 22     # Set the echo pin number
-        self.sensor = DistanceSensor(echo=self.echo_pin, trigger=self.trigger_pin, max_distance=3)  # Initialize the distance sensor
+        """Initialize the Ultrasonic sensor class."""
+        warnings.filterwarnings("ignore", category=PWMSoftwareFallback)  # Ignore PWM warnings
+        self.trigger_pin = 27  # GPIO trigger pin
+        self.echo_pin = 22     # GPIO echo pin
+        GPIO.setup(self.trigger_pin, GPIO.OUT)
+        GPIO.setup(self.echo_pin, GPIO.IN)
 
     def get_distance(self):
-        # Get the distance measurement from the ultrasonic sensor in centimeters.
-        distance_cm = self.sensor.distance * 100  # Convert distance from meters to centimeters
-        return round(float(distance_cm), 1)       # Return the distance rounded to one decimal place
+        """Measure the distance using the ultrasonic sensor."""
+        # Send a pulse to trigger the ultrasonic sensor
+        GPIO.output(self.trigger_pin, GPIO.HIGH)
+        sleep(0.00001)
+        GPIO.output(self.trigger_pin, GPIO.LOW)
+        
+        # Measure the time it takes for the echo to return
+        pulse_start = time.time()
+        while GPIO.input(self.echo_pin) == 0:
+            pulse_start = time.time()
+        
+        pulse_end = time.time()
+        while GPIO.input(self.echo_pin) == 1:
+            pulse_end = time.time()
+        
+        pulse_duration = pulse_end - pulse_start
+        distance = pulse_duration * 17150  # Calculate distance in cm
+        return round(distance, 2)
 
     def close(self):
-        # Close the distance sensor.
-        self.sensor.close()        # Close the sensor to release resources
-        
+        """Cleanup the ultrasonic sensor."""
+        GPIO.cleanup(self.trigger_pin)
+        GPIO.cleanup(self.echo_pin)
+
 class Clamp:
     def __init__(self):
-        self.servo = None
-        if self.servo is None:
-            self.servo0 = Servo(12)
-            self.servo1 = Servo(13)
+        """Initialize the Clamp class and set up servo control."""
+        self.servo_pin1 = 12  # GPIO pin for the first servo
+        self.servo_pin2 = 13  # GPIO pin for the second servo
+        GPIO.setup(self.servo_pin1, GPIO.OUT)
+        GPIO.setup(self.servo_pin2, GPIO.OUT)
         
+        # Set up PWM for both servos
+        self.servo1 = GPIO.PWM(self.servo_pin1, 50)  # 50Hz for servos
+        self.servo2 = GPIO.PWM(self.servo_pin2, 50)
+        self.servo1.start(0)  # Start with 0% duty cycle (servo off)
+        self.servo2.start(0)
+
     def up(self):
-        """Perform clamp up operation"""
-        # Get distance from ultrasonic sensor
-#        distance = self.sonic.get_distance()
-#        motor = Motor()
-#        # Control motor based on distance
-#        if distance <= 5:
-#            motor.driveBackward(2)
-#        elif distance > 5 and distance < 7.5:
-#            motor.driveBackward(1)
-#        elif distance >= 7.5 and distance <= 7.7:
-#            motor.stop()
-            # Adjust servos to clamp up
-        for i in range(180, 90, -1):
-            self.servo1.value = (i - 90) / 90
-            sleep(0.01)
-        for i in range(170, 90, -1):
-            self.servo0.value = (i - 90) / 90
-            sleep(0.01)  
-        for i in range(90, 180, 1):
-            self.servo1.value = (i - 90) / 90
-            sleep(0.01)
-#        elif distance > 7.7 and distance < 11:
-#            motor.driveForward(1)
-#        elif distance >= 11:
-#            motor.driveForward(2)
-        # Sleep for a short duration
-#        sleep(0.05) 
+        """Move the clamp up (open the clamp)."""
+        # Move the servos to the "up" position
+        self.servo1.ChangeDutyCycle(12)  # Adjust this value as needed for servo calibration
+        self.servo2.ChangeDutyCycle(8)   # Adjust this value as needed for servo calibration
+        sleep(1)  # Wait for the servo to reach the position
 
     def down(self):
-        """Perform clamp down operation"""
-#        motor = Motor()
-#        motor.stop()
-        # Adjust servos to clamp down
-        for i in range(180, 90, -1):
-            self.servo1.value = (i - 90) / 90
-            sleep(0.01)
-        for i in range(90, 170, 1):
-            self.servo0.value = (i - 90) / 90
-            sleep(0.01)  
-        for i in range(90, 180, 1):
-            self.servo1.value = (i - 90) / 90
-            sleep(0.01)
+        """Move the clamp down (close the clamp)."""
+        # Move the servos to the "down" position
+        self.servo1.ChangeDutyCycle(8)
+        self.servo2.ChangeDutyCycle(12)
+        sleep(1)  # Wait for the servo to reach the position
+
+    def close(self):
+        """Stop PWM and clean up the servos."""
+        self.servo1.stop()
+        self.servo2.stop()
+        GPIO.cleanup(self.servo_pin1)
+        GPIO.cleanup(self.servo_pin2)
 
 # Main program logic follows:
 if __name__ == '__main__':
-    print('MOTOR TESTING STARTED ... \n')  # Print a start message
-    motor = Motor()                        # Create an instance of the tankMotor class
-    while True:
-        try:
-            motor.driveLeft(4)
-            sleep(0.35)
-            motor.driveForward(1)
-            sleep(0.5)
-            motor.driveLeft(4)
-            sleep(0.35)
-            motor.driveForward(1)
-            sleep(0.5)
-            motor.driveLeft(4)
-            sleep(0.35)
-            motor.driveForward(1)
-            sleep(0.5)
-            motor.driveLeft(4)
-            sleep(0.35)
-            motor.driveForward(1)
-            sleep(0.5)
-        except KeyboardInterrupt:              # Handle a keyboard interrupt (Ctrl+C)
-            motor.setMotorModel(0, 0)          # Stop both motors
-            motor.close()                      # Close the motors to release resources
+    print('MOTOR TESTING STARTED ... \n')
+    motor = Motor()  # Create an instance of the Motor class
+    ultrasonic = Ultrasonic()  # Create an instance of the Ultrasonic class
+    clamp = Clamp()  # Create an instance of the Clamp class
+
+    try:
+        while True:
+            distance = ultrasonic.get_distance()  # Get distance from the ultrasonic sensor
+            print(f"Distance: {distance} cm")
+
+            # Use the clamp based on the distance
+            if distance < 10:  # If an object is closer than 10cm
+                print("Moving clamp up...")
+                clamp.up()
+                motor.drive_backward(2)
+            elif distance >= 10 and distance <= 20:  # If the object is between 10 and 20 cm
+                print("Moving clamp down...")
+                clamp.down()
+                motor.drive_forward(2)
+            else:  # If the object is farther than 20cm
+                motor.stop()
+
+            sleep(1)  # Pause between actions
+
+    except KeyboardInterrupt:
+        motor.stop()  # Stop both motors
+        motor.close()  # Close the motors to release resources
+        ultrasonic.close()  # Cleanup ultrasonic sensor
+        clamp.close()  # Cleanup clamp servos
+        print("Program interrupted, cleaning up.")
