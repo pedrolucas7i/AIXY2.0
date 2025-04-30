@@ -14,10 +14,10 @@ Clamp = tank.Clamp()
 def executeCommand(stt_data):
     commands_actions = [
         (env.COMMANDS[0], lambda: (tts.speak(f"{utils.getDistance()}{env.RESPONSES[0]}"))),
-        (env.COMMANDS[1], lambda: (tts.speak(env.RESPONSES[1]), Motors.driveForward(2))),
-        (env.COMMANDS[2], lambda: (tts.speak(env.RESPONSES[2]), Motors.driveLeft(3))),
-        (env.COMMANDS[3], lambda: (tts.speak(env.RESPONSES[3]), Motors.driveRight(3))),
-        (env.COMMANDS[4], lambda: (tts.speak(env.RESPONSES[4]), Motors.driveBackward(3))),
+        (env.COMMANDS[1], lambda: (tts.speak(env.RESPONSES[1]), Motors.drive_forward(2))),
+        (env.COMMANDS[2], lambda: (tts.speak(env.RESPONSES[2]), Motors.drive_left(3))),
+        (env.COMMANDS[3], lambda: (tts.speak(env.RESPONSES[3]), Motors.drive_right(3))),
+        (env.COMMANDS[4], lambda: (tts.speak(env.RESPONSES[4]), Motors.drive_backward(3))),
         (env.COMMANDS[5], lambda: (tts.speak(env.RESPONSES[5]), Clamp.up())),
         (env.COMMANDS[6], lambda: stop_for_40_seconds(Motors)),
     ]
