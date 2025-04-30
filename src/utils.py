@@ -105,13 +105,13 @@ def calculatedWaitingTime(low_usage_delay):
 def drive(direction, intensity):
     Motors = tank.Motor()
     if 'forward' in direction:
-        Motors.driveForward(intensity)
+        Motors.drive_forward(intensity)
     elif 'backward' in direction:
-        Motors.driveBackward(intensity)
+        Motors.drive_backward(intensity)
     elif 'left' in direction:
-        Motors.driveLeft(intensity)
+        Motors.drive_left(intensity)
     elif 'right' in direction:
-        Motors.driveRight(intensity)
+        Motors.drive_right(intensity)
     elif 'finded' in direction:
         Clamp = tank.Clamp()
         Clamp.down()
@@ -121,7 +121,7 @@ def drive(direction, intensity):
 def verifyObstacules():
     ultrassonic = tank.Ultrasonic()
     Motors = tank.Motor()
-    if ultrassonic.get_distance() < 25:
+    if ultrassonic.get_distance() < 7.5:
         Motors.driveLeft(2)
         sleep(0.2)
     
