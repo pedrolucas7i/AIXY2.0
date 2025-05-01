@@ -44,10 +44,10 @@ apt install -y python3-pip python3-dev gpiod
 pip3 install gpiod --break-system-packages || pip3 install gpiod
 pip3 install OPi.GPIO --break-system-packages || pip3 install OPi.GPIO
 
-echo "📄 Installing Python project dependencies from ../src/requirements.txt..."
 REQS_PATH="$(dirname "$0")/../src/requirements.txt"
 if [ -f "$REQS_PATH" ]; then
-    pip3 install -r "$REQS_PATH" --break-system-packages
+    echo "📦 Installing Python dependencies from $REQS_PATH (as $NON_ROOT_USER)..."
+    sudo -u "$NON_ROOT_USER" pip3 install -r "$REQS_PATH" --break-system-packages
 else
     echo "⚠️  requirements.txt not found at $REQS_PATH!"
 fi
