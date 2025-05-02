@@ -106,17 +106,14 @@ class Ultrasonic:
         run_command(f"sudo lgpio set {self.trigger}=0")
 
         start = time()
-        while True:
-            echo_status = run_command(f"sudo lgpio get {self.echo}")[0].strip()
-            if echo_status == '1':
-                start = time()
-                break
-
-        while True:
-            echo_status = run_command(f"sudo lgpio get {self.echo}")[0].strip()
-            if echo_status == '0':
-                stop = time()
-                break
+        
+        # Espera até o pino ECHO ir para 1 (indica início do retorno do sinal)
+        while run_command(f"sudo lgpio get {self.echo}")[0].strip() == '0':
+            start = time()
+        
+        # Espera até o pino ECHO voltar para 0 (indica fim do retorno do sinal)
+        while run_command(f"sudo lgpio get {self.echo}")[0].strip() == '1':
+            stop = time()
 
         # Calcula o tempo de viagem do sinal
         elapsed = stop - start
