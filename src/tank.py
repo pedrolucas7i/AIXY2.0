@@ -1,4 +1,4 @@
-import lgpio
+import subprocess
 from time import sleep, time
 from threading import Lock
 
@@ -17,38 +17,50 @@ TRIG = 74             # Físico 35 - GPIOX_12
 ECHO = 75             # Físico 36 - GPIOX_13
 
 
+# === FUNÇÃO AUXILIAR PARA EXECUTAR COMANDOS COM subprocess ===
+def run_command(command):
+    """Executa um comando no shell e retorna a saída."""
+    try:
+        result = subprocess.run(command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        return result.stdout.decode('utf-8'), result.stderr.decode('utf-8')
+    except subprocess.CalledProcessError as e:
+        return e.stdout.decode('utf-8'), e.stderr.decode('utf-8')
+
+
 # === MOTOR CONTROL ===
 
 class Motor:
     def __init__(self):
-        self.h = lgpio.gpiochip_open(1)
+        self.lock = Lock()
+        
+        # Inicializando os pinos
         self.left_forward = LEFT_FORWARD
         self.left_backward = LEFT_BACKWARD
         self.right_forward = RIGHT_FORWARD
         self.right_backward = RIGHT_BACKWARD
-        self.lock = Lock()
 
+        # Inicializa os pinos de saída
         for pin in [self.left_forward, self.left_backward, self.right_forward, self.right_backward]:
-            lgpio.gpio_claim_output(self.h, pin, 1)
+            run_command(f"sudo lgpio set {pin}=0")  # Set initial state to LOW
 
     def duty_range(self, duty1, duty2):
         return max(-100, min(100, duty1)), max(-100, min(100, duty2))
 
     def left_wheel(self, duty):
-        lgpio.gpio_write(self.h, self.left_forward, 0)
-        lgpio.gpio_write(self.h, self.left_backward, 0)
+        run_command(f"sudo lgpio set {self.left_forward}=0")
+        run_command(f"sudo lgpio set {self.left_backward}=0")
         if duty > 0:
-            lgpio.gpio_write(self.h, self.left_forward, 1)
+            run_command(f"sudo lgpio set {self.left_forward}=1")
         elif duty < 0:
-            lgpio.gpio_write(self.h, self.left_backward, 1)
+            run_command(f"sudo lgpio set {self.left_backward}=1")
 
     def right_wheel(self, duty):
-        lgpio.gpio_write(self.h, self.right_forward, 0)
-        lgpio.gpio_write(self.h, self.right_backward, 0)
+        run_command(f"sudo lgpio set {self.right_forward}=0")
+        run_command(f"sudo lgpio set {self.right_backward}=0")
         if duty > 0:
-            lgpio.gpio_write(self.h, self.right_forward, 1)
+            run_command(f"sudo lgpio set {self.right_forward}=1")
         elif duty < 0:
-            lgpio.gpio_write(self.h, self.right_backward, 1)
+            run_command(f"sudo lgpio set {self.right_backward}=1")
 
     def set_motor_model(self, duty1, duty2):
         with self.lock:
@@ -75,54 +87,50 @@ class Motor:
     def stop(self):
         self.set_motor_model(0, 0)
 
-    def close(self):
-        self.stop()
-        lgpio.gpiochip_close(self.h)
-
 
 # === ULTRASONIC SENSOR ===
 
 class Ultrasonic:
     def __init__(self):
-        self.h = lgpio.gpiochip_open(0)
         self.trigger = TRIG
         self.echo = ECHO
-        lgpio.gpio_claim_output(self.h, self.trigger, 0)
-        lgpio.gpio_claim_input(self.h, self.echo)
+
+        # Inicializa o pino de trigger e echo
+        run_command(f"sudo lgpio set {self.trigger}=0")
+        run_command(f"sudo lgpio set {self.echo}=0")
 
     def get_distance(self):
-        lgpio.gpio_write(self.h, self.trigger, 1)
+        # Envia um pulso para o trigger
+        run_command(f"sudo lgpio set {self.trigger}=1")
         sleep(0.00001)
-        lgpio.gpio_write(self.h, self.trigger, 0)
+        run_command(f"sudo lgpio set {self.trigger}=0")
 
         start = time()
-        while lgpio.gpio_read(self.h, self.echo) == 0:
+        while run_command(f"sudo lgpio get {self.echo}")[0] == '0':  # Espera pelo sinal de echo
             start = time()
-        while lgpio.gpio_read(self.h, self.echo) == 1:
+        while run_command(f"sudo lgpio get {self.echo}")[0] == '1':  # Espera pelo fim do sinal de echo
             stop = time()
 
         elapsed = stop - start
         distance = (elapsed * 34300) / 2
         return round(distance, 1)
 
-    def close(self):
-        lgpio.gpiochip_close(self.h)
-
 
 # === SERVO CONTROL ===
 
 class Clamp:
     def __init__(self):
-        self.h = lgpio.gpiochip_open(0)
         self.servo1 = SERVO1
         self.servo2 = SERVO2
-        lgpio.gpio_claim_output(self.h, self.servo1, 0)
-        lgpio.gpio_claim_output(self.h, self.servo2, 0)
+
+        # Inicializa os servos
+        run_command(f"sudo lgpio set {self.servo1}=0")
+        run_command(f"sudo lgpio set {self.servo2}=0")
 
     def write_servo(self, gpio, angle):
-        # Convert angle (0–180) to pulse width in microseconds (500–2500)
+        # Converte o ângulo (0–180) para um valor de PWM
         pulse = int((angle / 180.0) * 2000 + 500)
-        lgpio.tx_pwm(self.h, gpio, 50, pulse)  # 50 Hz PWM
+        run_command(f"sudo lgpio tx_pwm {gpio} 50 {pulse}")  # 50 Hz PWM
 
     def up(self):
         for i in range(180, 90, -5):
@@ -145,12 +153,6 @@ class Clamp:
         for i in range(90, 180, 5):
             self.write_servo(self.servo2, i)
             sleep(0.02)
-
-    def close(self):
-        lgpio.tx_pwm(self.h, self.servo1, 0, 0)
-        lgpio.tx_pwm(self.h, self.servo2, 0, 0)
-        lgpio.gpiochip_close(self.h)
-
 
 # === MAIN LOOP ===
 
@@ -182,6 +184,5 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print("\nStopping safely...")
         motor.stop()
-        motor.close()
         ultrasonic.close()
         clamp.close()
