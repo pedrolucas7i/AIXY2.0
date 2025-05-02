@@ -38,11 +38,13 @@ load-module module-bluetooth-discover
 EOF
 
 echo "🐍 Installing Python GPIO support..."
-apt install -y python3-pip python3-dev gpiod
 
 # Install Python GPIO libraries
-pip3 install gpiod --break-system-packages || pip3 install gpiod
-pip3 install OPi.GPIO --break-system-packages || pip3 install OPi.GPIO
+apt update
+apt install libretech-gpio libretech-dtoverlay
+ldto enable gpio
+ldto enable pwm
+
 
 REQS_PATH="$(dirname "$0")/../src/requirements.txt"
 if [ -f "$REQS_PATH" ]; then
