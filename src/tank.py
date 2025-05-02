@@ -29,7 +29,7 @@ class Motor:
         self.lock = Lock()
 
         for pin in [self.left_forward, self.left_backward, self.right_forward, self.right_backward]:
-            lgpio.gpio_claim_output(self.h, pin, 0)
+            lgpio.gpio_claim_output(self.h, pin, 1)
 
     def duty_range(self, duty1, duty2):
         return max(-100, min(100, duty1)), max(-100, min(100, duty2))
