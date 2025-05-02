@@ -108,12 +108,16 @@ class Ultrasonic:
         start = time()
         while run_command(f"sudo lgpio get {self.echo}")[0] == '0':  # Espera pelo sinal de echo
             start = time()
+
+        stop = start  # Inicializa stop com o mesmo valor de start para evitar uso de variável indefinida
+
         while run_command(f"sudo lgpio get {self.echo}")[0] == '1':  # Espera pelo fim do sinal de echo
             stop = time()
 
         elapsed = stop - start
         distance = (elapsed * 34300) / 2
         return round(distance, 1)
+
 
 
 # === SERVO CONTROL ===
