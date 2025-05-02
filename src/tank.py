@@ -106,18 +106,22 @@ class Ultrasonic:
         run_command(f"sudo lgpio set {self.trigger}=0")
 
         start = time()
-        while run_command(f"sudo lgpio get {self.echo}")[0] == '0':  # Espera pelo sinal de echo
-            start = time()
+        while True:
+            echo_status = run_command(f"sudo lgpio get {self.echo}")[0].strip()
+            if echo_status == '1':
+                start = time()
+                break
 
-        stop = start  # Inicializa stop com o mesmo valor de start para evitar uso de variável indefinida
+        while True:
+            echo_status = run_command(f"sudo lgpio get {self.echo}")[0].strip()
+            if echo_status == '0':
+                stop = time()
+                break
 
-        while run_command(f"sudo lgpio get {self.echo}")[0] == '1':  # Espera pelo fim do sinal de echo
-            stop = time()
-
+        # Calcula o tempo de viagem do sinal
         elapsed = stop - start
         distance = (elapsed * 34300) / 2
         return round(distance, 1)
-
 
 
 # === SERVO CONTROL ===
@@ -157,6 +161,7 @@ class Clamp:
         for i in range(90, 180, 5):
             self.write_servo(self.servo2, i)
             sleep(0.02)
+
 
 # === MAIN LOOP ===
 
