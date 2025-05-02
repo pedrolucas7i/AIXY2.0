@@ -21,7 +21,7 @@ ECHO = 75             # Físico 36 - GPIOX_13
 
 class Motor:
     def __init__(self):
-        self.h = lgpio.gpiochip_open(0)
+        self.h = lgpio.gpiochip_open(1)
         self.left_forward = LEFT_FORWARD
         self.left_backward = LEFT_BACKWARD
         self.right_forward = RIGHT_FORWARD
