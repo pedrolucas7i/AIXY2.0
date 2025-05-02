@@ -5,16 +5,16 @@ from threading import Lock
 # === GPIO NUMERAÇÃO (Linux GPIO) PARA LE POTATO ===
 # Baseado nos pinos físicos a partir do 26
 
-LEFT_FORWARD = 115    # Físico 27 - GPIOA_11
-LEFT_BACKWARD = 73    # Físico 28 - GPIOX_11
-RIGHT_FORWARD = 69    # Físico 29 - GPIOX_7
-RIGHT_BACKWARD = 70   # Físico 31 - GPIOX_8
+LEFT_FORWARD = 27     # Físico 27 - GPIOA_11
+LEFT_BACKWARD = 28    # Físico 28 - GPIOX_11
+RIGHT_FORWARD = 29    # Físico 29 - GPIOX_7
+RIGHT_BACKWARD = 31   # Físico 31 - GPIOX_8
 
-SERVO1 = 71           # Físico 32 - GPIOX_9
-SERVO2 = 72           # Físico 33 - GPIOX_10
+SERVO1 = 32           # Físico 32 - GPIOX_9
+SERVO2 = 33           # Físico 33 - GPIOX_10
 
-TRIG = 74             # Físico 35 - GPIOX_12
-ECHO = 75             # Físico 36 - GPIOX_13
+TRIG = 35             # Físico 35 - GPIOX_12
+ECHO = 36             # Físico 36 - GPIOX_13
 
 
 # === FUNÇÃO AUXILIAR PARA EXECUTAR COMANDOS COM subprocess ===
