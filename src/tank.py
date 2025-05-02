@@ -1,30 +1,27 @@
-import subprocess
+import lgpio
 from threading import Lock
 from time import sleep
 import env
 
-"""
-Função	            GPIO    Chip_Line
-Esq. FWD	        29	    1_96
-Esq. BWD	        31	    1_97
-Dir. FWD	        37	    1_84
-Dir. BWD	        33	    1_85
-Ultrassom Trigger	35	    1_86
-Ultrassom Echo	    32	    1_95
-Servo 0	            36	    1_81
-Servo 1	            38	    1_82
-"""
+
+CHIP = 1  # gpiochip1
+CHIP_HANDLE = lgpio.gpiochip_open(CHIP)
+
 
 # === GPIO CONTROL FUNCTIONS ===
 
 def gpio_set(chip_line, value):
-    chip, line = chip_line.split('_')
-    subprocess.run(['lgpio', 'gset', chip, line, str(value)], check=False)
+    _, line = chip_line.split('_')
+    line = int(line)
+    lgpio.gpio_claim_output(CHIP_HANDLE, line, value)
 
 def gpio_pwm(chip_line, duty_percent):
-    chip, line = chip_line.split('_')
-    duty = int(duty_percent * 1000000)  # convert 0.0–1.0 to microseconds
-    subprocess.run(['lgpio', 'pwm', chip, line, '100000', str(duty)], check=False)
+    _, line = chip_line.split('_')
+    line = int(line)
+    frequency = 50  # Typical for servos
+    duty_microseconds = int(duty_percent * 1_000_000)
+    lgpio.tx_pwm(CHIP_HANDLE, line, frequency, duty_microseconds)
+
 
 # === MOTOR CONTROL ===
 
@@ -98,6 +95,7 @@ class Motor:
     def close(self):
         self.stop()
 
+
 # === ULTRASONIC SENSOR ===
 
 class Ultrasonic:
@@ -108,30 +106,28 @@ class Ultrasonic:
 
     def get_distance(self):
         import time
-        import lgpio
-        h = lgpio.gpiochip_open(1)
         TRIG = 86
         ECHO = 95
-        lgpio.gpio_claim_output(h, TRIG, 0)
-        lgpio.gpio_claim_input(h, ECHO)
+        lgpio.gpio_claim_output(CHIP_HANDLE, TRIG, 0)
+        lgpio.gpio_claim_input(CHIP_HANDLE, ECHO)
 
-        lgpio.gpio_write(h, TRIG, 1)
+        lgpio.gpio_write(CHIP_HANDLE, TRIG, 1)
         time.sleep(0.00001)
-        lgpio.gpio_write(h, TRIG, 0)
+        lgpio.gpio_write(CHIP_HANDLE, TRIG, 0)
 
         start = time.time()
-        while lgpio.gpio_read(h, ECHO) == 0:
+        while lgpio.gpio_read(CHIP_HANDLE, ECHO) == 0:
             start = time.time()
-        while lgpio.gpio_read(h, ECHO) == 1:
+        while lgpio.gpio_read(CHIP_HANDLE, ECHO) == 1:
             stop = time.time()
 
         elapsed = stop - start
         distance = (elapsed * 34300) / 2  # cm
-        lgpio.gpiochip_close(h)
         return round(distance, 1)
 
     def close(self):
         pass
+
 
 # === SERVO CONTROL ===
 
@@ -140,33 +136,32 @@ class Clamp:
         self.servo0 = '1_81'  # Pin 36
         self.servo1 = '1_82'  # Pin 38
 
+    def angle_to_duty(self, angle):
+        # Converts angle (0–180) to 0.05–0.10 (5% to 10% duty)
+        return (angle / 180.0) * 0.05 + 0.05
+
     def up(self):
         for i in range(180, 90, -1):
-            val = (i - 90) / 90
-            gpio_pwm(self.servo1, val)
+            gpio_pwm(self.servo1, self.angle_to_duty(i))
             sleep(0.01)
         for i in range(170, 90, -1):
-            val = (i - 90) / 90
-            gpio_pwm(self.servo0, val)
+            gpio_pwm(self.servo0, self.angle_to_duty(i))
             sleep(0.01)
         for i in range(90, 180, 1):
-            val = (i - 90) / 90
-            gpio_pwm(self.servo1, val)
+            gpio_pwm(self.servo1, self.angle_to_duty(i))
             sleep(0.01)
 
     def down(self):
         for i in range(180, 90, -1):
-            val = (i - 90) / 90
-            gpio_pwm(self.servo1, val)
+            gpio_pwm(self.servo1, self.angle_to_duty(i))
             sleep(0.01)
         for i in range(90, 170, 1):
-            val = (i - 90) / 90
-            gpio_pwm(self.servo0, val)
+            gpio_pwm(self.servo0, self.angle_to_duty(i))
             sleep(0.01)
         for i in range(90, 180, 1):
-            val = (i - 90) / 90
-            gpio_pwm(self.servo1, val)
+            gpio_pwm(self.servo1, self.angle_to_duty(i))
             sleep(0.01)
+
 
 # === MAIN LOOP ===
 
@@ -182,3 +177,4 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         motor.stop()
         motor.close()
+        lgpio.gpiochip_close(CHIP_HANDLE)
