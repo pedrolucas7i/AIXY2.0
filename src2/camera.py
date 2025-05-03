@@ -1,4 +1,7 @@
 # camera.py
+# Author: Pedro Lucas
+# Project: AIXY2.0
+
 import threading
 import cv2
 import numpy as np
