@@ -17,7 +17,7 @@
 """
 
 """ Large Vision Model Automonous Drive """
-LVMAD = False 
+LVMAD = False
 
 """ Large Languade Model Autonomous Conversations """
 LLMAC = False
@@ -105,15 +105,16 @@ def find(thing, additionalPrompt=None):
 
 def drive(direction):
     import hardware
+    from time import sleep
 
     if 'forward' in direction:
         hardware.drive_forward()
     elif 'backward' in direction:
-        hardware.drive_backward()()
+        hardware.drive_backward()
     elif 'left' in direction:
-        hardware.drive_left()()
+        hardware.drive_left()
     elif 'right' in direction:
-        hardware.drive_right()()
+        hardware.drive_right()
     elif 'finded' in direction:
         hardware.clamp_catch()
     
@@ -122,6 +123,9 @@ def drive(direction):
 
 
 def manualControl():
+    import pygame
+    import xbox360_controller
+
     pygame.init()
     controller = xbox360_controller.Controller()
     while True:
@@ -320,4 +324,6 @@ def main():
 
 
 
-main()
+#main()
+
+manualControl()
