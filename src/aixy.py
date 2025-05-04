@@ -128,8 +128,10 @@ def manualControl():
     import xbox360_controller
 
     pygame.init()
+    clock = pygame.time.Clock()
     controller = xbox360_controller.Controller()
     while True:
+        pygame.event.get()
         a, y = controller.get_left_stick()
         x, b = controller.get_right_stick()
 
