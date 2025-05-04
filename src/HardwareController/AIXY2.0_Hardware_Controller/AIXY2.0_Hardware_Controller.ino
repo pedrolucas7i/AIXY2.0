@@ -16,20 +16,6 @@
 ===============================================================================================================================================================
 */
 
-String COMMANDS[] = {
-  "drive_forward",
-  "drive_backward",
-  "drive_left",
-  "drive_right",
-  "drive_release",
-  "drive_stop",
-  "ultrassonic_data",
-  "arm_down",
-  "arm_up",
-  "clamp_catch",
-  "clamp_release",
-};
-
 #include <Servo.h>                                    // Includes the Servo Library
 #include <NewPing.h>                                  // Includes the Ultrassonic Sensor Library
 
@@ -54,109 +40,111 @@ int backward_pwm = 175;                               // PWM used to drive backw
 
 void setup() {
   pinMode(PIN_MOTOR1_IN1, OUTPUT);                    // Defining PIN's as ouptuts
-  pinMode(PIN_MOTOR1_IN2, OUTPUT);                    // Defining PIN's as ouptuts
-  pinMode(PIN_MOTOR2_IN1, OUTPUT);                    // Defining PIN's as ouptuts
-  pinMode(PIN_MOTOR2_IN2, OUTPUT);                    // Defining PIN's as ouptuts
+  pinMode(PIN_MOTOR1_IN2, OUTPUT);
+  pinMode(PIN_MOTOR2_IN1, OUTPUT);
+  pinMode(PIN_MOTOR2_IN2, OUTPUT);
   arm.attach(PIN_ARM);                                // Defining the PIN of ARM SERVO
   clamp.attach(PIN_CLAMP);                            // Defining the PIN of CLAMP SERVO
   Serial.begin(9600);                                 // Start Serial comunication in 9600 bauds
-  
 }
 
 void loop() {
   if (Serial.available()) {
-    String command = Serial.readStringUntil('\n');
-    command.trim();
-    
-    if (command == COMMANDS[0]) {
+    String command = Serial.readStringUntil('\n');    // Read command until newline
+    command.trim();                                   // Remove whitespaces or extra characters
+
+    // Compare command strings directly and send back confirmation
+    if (command == "drive_forward") {
       drive_forward();
-    } 
-    else if (command == COMMANDS[1]) {
+      Serial.println("OK: drive_forward");
+    } else if (command == "drive_backward") {
       drive_backward();
-    } 
-    else if (command == COMMANDS[2]) {
+      Serial.println("OK: drive_backward");
+    } else if (command == "drive_left") {
       drive_left();
-    } 
-    else if (command == COMMANDS[3]) {
+      Serial.println("OK: drive_left");
+    } else if (command == "drive_right") {
       drive_right();
-    } 
-    else if (command == COMMANDS[4]) {
+      Serial.println("OK: drive_right");
+    } else if (command == "drive_release") {
       drive_release();
-    } 
-    else if (command == COMMANDS[5]) {
+      Serial.println("OK: drive_release");
+    } else if (command == "drive_stop") {
       drive_stop();
-    } 
-    else if (command == COMMANDS[6]) {
-      ultrassonic_data();
-    } 
-    else if (command == COMMANDS[7]) {
+      Serial.println("OK: drive_stop");
+    } else if (command == "ultrassonic_data") {
+      float dist = ultrassonic_data();
+      Serial.print("DIST: ");
+      Serial.println(dist);
+    } else if (command == "arm_down") {
       arm_down();
-    } 
-    else if (command == COMMANDS[8]) {
+      Serial.println("OK: arm_down");
+    } else if (command == "arm_up") {
       arm_up();
-    } 
-    else if (command == COMMANDS[9]) {
+      Serial.println("OK: arm_up");
+    } else if (command == "clamp_catch") {
       clamp_catch();
-    } 
-    else if (command == COMMANDS[10]) {
+      Serial.println("OK: clamp_catch");
+    } else if (command == "clamp_release") {
       clamp_release();
-    } 
-    else {
+      Serial.println("OK: clamp_release");
+    } else {
       Serial.println("COMMAND NOT FOUND!");
     }
-    
   }
 }
 
 
-void drive_forward() {
-  digitalWrite(PIN_MOTOR1_IN2, LOW);                  // Send to PIN 0V
-  digitalWrite(PIN_MOTOR2_IN2, LOW);                  // Send to PIN 0V
-  digitalWrite(PIN_MOTOR1_IN1, HIGH);                 // Send to PIN ~5V
-  digitalWrite(PIN_MOTOR2_IN1, HIGH);                 // Send to PIN ~5V
-  delay(1000);                                        // Execute the action for 1000ms
-}
+// === MOTOR COMMANDS ===
 
+void drive_forward() {
+  digitalWrite(PIN_MOTOR1_IN2, LOW);
+  digitalWrite(PIN_MOTOR2_IN2, LOW);
+  digitalWrite(PIN_MOTOR1_IN1, HIGH);
+  digitalWrite(PIN_MOTOR2_IN1, HIGH);
+  delay(1000);
+}
 
 void drive_backward() {
-  digitalWrite(PIN_MOTOR1_IN1, LOW);                  // Send to PIN ~5V
-  digitalWrite(PIN_MOTOR2_IN1, LOW);                  // Send to PIN ~5V
-  analogWrite(PIN_MOTOR1_IN2, backward_pwm);          // Send to PIN backward_pwm PWM VALUE
-  analogWrite(PIN_MOTOR2_IN2, backward_pwm);          // Send to PIN backward_pwm PWM VALUE
-  delay(1000);                                        // Execute the action for 1000ms
+  digitalWrite(PIN_MOTOR1_IN1, LOW);
+  digitalWrite(PIN_MOTOR2_IN1, LOW);
+  analogWrite(PIN_MOTOR1_IN2, backward_pwm);
+  analogWrite(PIN_MOTOR2_IN2, backward_pwm);
+  delay(1000);
 }
 
-
 void drive_left() {
-  digitalWrite(PIN_MOTOR1_IN1, LOW);                  // Send to PIN 0V
-  digitalWrite(PIN_MOTOR2_IN1, HIGH);                 // Send to PIN ~5V
-  digitalWrite(PIN_MOTOR1_IN2, HIGH);                 // Send to PIN ~5V
-  digitalWrite(PIN_MOTOR2_IN2, LOW);                  // Send to PIN 0V
-  delay(700);                                         // Execute the action for 700ms
+  digitalWrite(PIN_MOTOR1_IN1, LOW);
+  digitalWrite(PIN_MOTOR2_IN1, HIGH);
+  digitalWrite(PIN_MOTOR1_IN2, HIGH);
+  digitalWrite(PIN_MOTOR2_IN2, LOW);
+  delay(700);
 }
 
 void drive_right() {
-  digitalWrite(PIN_MOTOR1_IN1, HIGH);                 // Send to PIN ~5V
-  digitalWrite(PIN_MOTOR2_IN1, LOW);                  // Send to PIN 0V
-  digitalWrite(PIN_MOTOR1_IN2, LOW);                  // Send to PIN 0V
-  digitalWrite(PIN_MOTOR2_IN2, HIGH);                 // Send to PIN ~5V
-  delay(700);                                         // Execute the action for 700ms
+  digitalWrite(PIN_MOTOR1_IN1, HIGH);
+  digitalWrite(PIN_MOTOR2_IN1, LOW);
+  digitalWrite(PIN_MOTOR1_IN2, LOW);
+  digitalWrite(PIN_MOTOR2_IN2, HIGH);
+  delay(700);
 }
 
 void drive_release() {
-  digitalWrite(PIN_MOTOR1_IN1, LOW);                  // Send to PIN 0V
-  digitalWrite(PIN_MOTOR2_IN1, LOW);                  // Send to PIN 0V
-  digitalWrite(PIN_MOTOR1_IN2, LOW);                  // Send to PIN 0V
-  digitalWrite(PIN_MOTOR2_IN2, LOW);                  // Send to PIN 0V
+  digitalWrite(PIN_MOTOR1_IN1, LOW);
+  digitalWrite(PIN_MOTOR2_IN1, LOW);
+  digitalWrite(PIN_MOTOR1_IN2, LOW);
+  digitalWrite(PIN_MOTOR2_IN2, LOW);
 }
 
 void drive_stop() {
-  digitalWrite(PIN_MOTOR1_IN1, HIGH);                 // Send to PIN ~5V
-  digitalWrite(PIN_MOTOR2_IN1, HIGH);                 // Send to PIN ~5V
-  digitalWrite(PIN_MOTOR1_IN2, HIGH);                 // Send to PIN ~5V
-  digitalWrite(PIN_MOTOR2_IN2, HIGH);                 // Send to PIN ~5V
+  digitalWrite(PIN_MOTOR1_IN1, HIGH);
+  digitalWrite(PIN_MOTOR2_IN1, HIGH);
+  digitalWrite(PIN_MOTOR1_IN2, HIGH);
+  digitalWrite(PIN_MOTOR2_IN2, HIGH);
 }
 
+
+// === SERVO AND SENSOR COMMANDS ===
 
 void arm_down() {
   for (int pos = 180; pos > 90; pos--) {
@@ -166,12 +154,11 @@ void arm_down() {
 }
 
 void arm_up() {
-  for (int pos = 90;pos < 180; pos++) {
+  for (int pos = 90; pos < 180; pos++) {
     arm.write(pos);
     delay(17);
   }
 }
-
 
 void clamp_release() {
   for (int pos = 170; pos > 90; pos--) {
@@ -180,7 +167,6 @@ void clamp_release() {
   }
 }
 
-
 void clamp_catch() {
   for (int pos = 90; pos < 170; pos++) {
     clamp.write(pos);
@@ -188,7 +174,6 @@ void clamp_catch() {
   }
 }
 
-
 float ultrassonic_data() {
-  Serial.println(sonar.ping_cm());
+  return sonar.ping_cm();                             // Return ping distance in cm
 }

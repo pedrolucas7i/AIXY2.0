@@ -17,65 +17,70 @@
 """
 
 import serial
+import time
+
 ser = None
 
 # === Serial Connection ===
 try:
-    ser = serial.Serial('/dev/ttyAML0', 9600, timeout=1)
+    ser = serial.Serial('/dev/ttyAML0', 9600, timeout=2)  # Increased timeout to improve reliability
     print("Serial open with Success!")
 except serial.SerialException as e:
     print(f"Error in serial port: {e}")
 except Exception as e:
     print(f"General error: {e}")
 
+# === Internal helper to send command and wait for confirmation ===
+def send_command(cmd):
+    if ser and ser.is_open:
+        ser.write((cmd + "\n").encode())
+        time.sleep(0.05)
+        while True:
+            response = ser.readline().decode().strip()
+            if response.startswith("OK:") or response.startswith("DIST:"):
+                return response
+            elif response == "":
+                continue
+            else:
+                print(f"Unexpected response: {response}")
+                break
 
 # === MOTOR CONTROL ===
 def drive_forward():
-    if ser and ser.is_open:
-        ser.write("drive_forward\n".encode())
+    print(send_command("drive_forward"))
 
 def drive_backward():
-    if ser and ser.is_open:
-        ser.write("drive_backward\n".encode())
+    print(send_command("drive_backward"))
 
 def drive_left():
-    if ser and ser.is_open:
-        ser.write("drive_left\n".encode())
+    print(send_command("drive_left"))
 
 def drive_right():
-    if ser and ser.is_open:
-        ser.write("drive_right\n".encode())
+    print(send_command("drive_right"))
 
 def drive_release():
-    if ser and ser.is_open:
-        ser.write("drive_release\n".encode())
+    print(send_command("drive_release"))
 
 def drive_stop():
-    if ser and ser.is_open:
-        ser.write("drive_stop\n".encode())
-
+    print(send_command("drive_stop"))
 
 # === ULTRASONIC SENSOR ===
 def get_distance():
-    if ser and ser.is_open:
-        ser.write("ultrassonic_data\n".encode())
-        response = ser.readline().decode('utf-8').strip()
+    response = send_command("ultrassonic_data")
+    if response and response.startswith("DIST:"):
         try:
-            return float(response)
+            return float(response.split(":")[1].strip())
         except ValueError:
-            print(f"Invalid Response: {response}")
+            print(f"Invalid distance response: {response}")
             return None
-
 
 # === SERVO CONTROL ===
 def clamp_catch():
-    if ser and ser.is_open:
-        ser.write("arm_down\n".encode())
-        ser.write("clamp_catch\n".encode())
-        ser.write("arm_up\n".encode())
+    send_command("arm_down")
+    send_command("clamp_catch")
+    send_command("arm_up")
 
 def clamp_release():
-    if ser and ser.is_open:
-        ser.write("arm_down\n".encode())
-        ser.write("clamp_release\n".encode())
-        ser.write("arm_up\n".encode())
+    send_command("arm_down")
+    send_command("clamp_release")
+    send_command("arm_up")
