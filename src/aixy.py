@@ -119,10 +119,10 @@ def drive(direction):
         hardware.clamp_catch()
     
     sleep(0.35)
-    hardware.drive_forward()
 
 
 def manualControl():
+    from time import sleep
     import pygame
     import hardware
     import xbox360_controller
@@ -144,7 +144,7 @@ def manualControl():
         elif y > 0:
             hardware.drive_backward()
 
-        drive('release')
+        sleep(0.7)
 
 
 def LVMAD_thread(thingToSearch=None, additionalPrompt=None):
