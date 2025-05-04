@@ -1,3 +1,7 @@
+# env.py
+# Author: Pedro Lucas
+# Project: AIXY2.0
+
 # Import the necessary module
 from dotenv import load_dotenv
 import os
@@ -5,15 +9,9 @@ import os
 # Load environment variables from the .env file
 load_dotenv()
 AIXY_SOFTWARE_VERSION = os.getenv('AIXY_SOFTWARE_VERSION')
-DEFAULT_LANGUAGE = os.getenv('DEFAULT_LANGUAGE')
 FIRST_EN_MESSAGE = os.getenv('FIRST_EN_MESSAGE')
 OLLAMA_VISION_MODEL = os.getenv('OLLAMA_VISION_MODEL')
 OLLAMA_LANGUAGE_MODEL = os.getenv('OLLAMA_LANGUAGE_MODEL')
-WHISPER_MODEL = os.getenv('WHISPER_MODEL')
-LEFT_MOTOR_CORRECTION_PWM_VALUE = os.getenv('LEFT_MOTOR_CORRECTION_PWM_VALUE')
-RIGHT_MOTOR_CORRECTION_PWM_VALUE = os.getenv('RIGHT_MOTOR_CORRECTION_PWM_VALUE')
-OLLAMA_EN_SEARCH_PROMPT = os.getenv('OLLAMA_EN_SEARCH_PROMPT')
-OLLAMA_PT_SEARCH_PROMPT = os.getenv('OLLAMA_PT_SEARCH_PROMPT')
 OLLAMA_EN_SEARCH_VISUAL_PROMPT = os.getenv('OLLAMA_EN_SEARCH_VISUAL_PROMPT')
 OLLAMA_VISION_DECISION_PROMPT = os.getenv('OLLAMA_VISION_DECISION_PROMPT')
 OLLAMA_USER_ADDITIONAL_PROMPT = os.getenv('OLLAMA_USER_ADDITIONAL_PROMPT')
@@ -43,3 +41,23 @@ RESPONSES = [
     'catching the object',
     'stoped for 40 seconds',
 ]
+
+"""
+movements = {
+    "forward": {"direction": "forward", "speed": 2},
+    "backward": {"direction": "backward", "speed": 2},
+    "slow forward": {"direction": "forward", "speed": 1},
+    "slow backward": {"direction": "backward", "speed": 1},
+    "fast forward": {"direction": "forward", "speed": 3},
+    "fast backward": {"direction": "backward", "speed": 3},
+    "faster forward": {"direction": "forward", "speed": 4},
+    "left": {"direction": "left", "speed": 2},
+    "right": {"direction": "right", "speed": 2},
+    "left fast": {"direction": "left", "speed": 3},
+    "right fast": {"direction": "right", "speed": 3},
+    "left very fast": {"direction": "left", "speed": 4},
+    "right very fast": {"direction": "right", "speed": 4},
+    "left hiper fast": {"direction": "left", "speed": 4},
+    "right hiper fast": {"direction": "right", "speed": 4},
+}
+"""

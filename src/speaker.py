@@ -1,3 +1,7 @@
+# speaker.py
+# Author: Pedro Lucas
+# Project: AIXY2.0
+
 from gtts import gTTS
 from playsound import playsound
 

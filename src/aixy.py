@@ -126,7 +126,10 @@ def manualControl():
 
 def LVMAD_thread(thingToSearch=None, additionalPrompt=None):
     import time
+    
     while True:
+
+        # If MOTORS has set as true, use motors, if not, just print the decision without execute the action
         if MOTORS:
             import hardware
 

@@ -1,6 +1,9 @@
+# llm.py
+# Author: Pedro Lucas
+# Project: AIXY2.0
+
 from ollama import Client
 from time import sleep
-import logging
 import env
 
 def get(model, prompt, image_stream=None):
@@ -9,9 +12,9 @@ def get(model, prompt, image_stream=None):
         try:
             return client.generate(model, prompt)['response']
         except Exception as e:
-            logging.error(f"An error occurred in llm.get(): {str(e)}")
+            print(f"An error occurred in llm.get(): {str(e)}\n")
     else:
         try:
             return client.generate(model, prompt, images=[image_stream])['response']
         except Exception as e:
-            logging.error(f"An error occurred in llm.get(image): {str(e)}")
+            print(f"An error occurred in llm.get(image): {str(e)}\n")

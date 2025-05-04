@@ -1,3 +1,7 @@
+# listener.py
+# Author: Pedro Lucas
+# Project: AIXY2.0
+
 import numpy as np
 import sounddevice as sd
 import tempfile
