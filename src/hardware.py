@@ -22,6 +22,22 @@ import time
 # Serial object
 ser = None
 
+# === STOP SERIAL-GETTY SERVICE ONLY ONCE ===
+def stop_serial_getty_once():
+    """Execute the command only once when the program starts."""
+    try:
+        # Stop the conflicting serial-getty service (Linux TTY login shell)
+        subprocess.run(["sudo", "systemctl", "stop", "serial-getty@ttyAML0.service"],
+                       check=True)
+        print("serial-getty service stopped successfully.")
+    except subprocess.CalledProcessError as e:
+        print(f"Error stopping serial-getty: {e}")
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+
+# === Execute the stop command only once when the program starts ===
+stop_serial_getty_once()
+
 # === Serial Connection Initialization ===
 try:
     ser = serial.Serial('/dev/ttyAML0', 9600, timeout=2)  # Increased timeout for more reliable reads
