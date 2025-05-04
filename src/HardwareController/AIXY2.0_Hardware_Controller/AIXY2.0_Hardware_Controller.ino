@@ -173,7 +173,7 @@ void arm_up() {
 }
 
 
-void clamp_catch() {
+void clamp_release() {
   for (int pos = 170; pos > 90; pos--) {
     clamp.write(pos);
     delay(15);
@@ -181,9 +181,9 @@ void clamp_catch() {
 }
 
 
-void clamp_release() {
+void clamp_catch() {
   for (int pos = 90; pos < 170; pos++) {
-    arm.write(pos);
+    clamp.write(pos);
     delay(15);
   }
 }
