@@ -122,6 +122,9 @@ def drive(direction):
 
 
 def manualControl():
+    # === Manual joystick control using Xbox360 controller ===
+    # === Handles axis interpretation and sends clean commands to hardware ===
+
     from time import sleep
     import pygame
     import hardware
@@ -129,26 +132,43 @@ def manualControl():
 
     pygame.init()
     clock = pygame.time.Clock()
-
     controller = xbox360_controller.Controller()
 
-    while True:
-        pygame.event.pump()
-        a, y = controller.get_left_stick()
-        x, b = controller.get_right_stick()
+    prev_command = None  # Store last command sent to avoid repeats
 
-        if x == 0 and y == 0:
-            hardware.drive_release()
-        elif x < 0:
-            hardware.drive_left()
-        elif x > 0:
-            hardware.drive_right()
-        elif y < 0:
-            hardware.drive_forward()
-        elif y > 0:
-            hardware.drive_backward()
+    try:
+        while True:
+            pygame.event.pump()  # Update internal pygame state
 
-        sleep(0.1)
+            # Get joystick axes
+            a, y = controller.get_left_stick()
+            x, b = controller.get_right_stick()
+
+            # Deadzone filter
+            threshold = 0.2
+            x = x if abs(x) > threshold else 0
+            y = y if abs(y) > threshold else 0
+
+            # Decide movement command
+            if x == 0 and y == 0:
+                command = "drive_release"
+            elif abs(x) > abs(y):
+                command = "drive_left" if x < 0 else "drive_right"
+            else:
+                command = "drive_forward" if y < 0 else "drive_backward"
+
+            # Send command only if it's different from the last one
+            if command != prev_command:
+                getattr(hardware, command)()  # Call hardware.drive_*
+                prev_command = command
+
+            sleep(0.1)  # Lowered delay to improve responsiveness
+            clock.tick(30)  # Prevent CPU overuse
+
+    except KeyboardInterrupt:
+        print("Manual control stopped by user.")
+    finally:
+        pygame.quit()
 
 
 def LVMAD_thread(thingToSearch=None, additionalPrompt=None):
