@@ -129,9 +129,11 @@ def manualControl():
 
     pygame.init()
     clock = pygame.time.Clock()
+
     controller = xbox360_controller.Controller()
+
     while True:
-        pygame.event.get()
+        pygame.event.pump()
         a, y = controller.get_left_stick()
         x, b = controller.get_right_stick()
 
@@ -146,7 +148,7 @@ def manualControl():
         elif y > 0:
             hardware.drive_backward()
 
-        sleep(0.7)
+        sleep(0.1)
 
 
 def LVMAD_thread(thingToSearch=None, additionalPrompt=None):
