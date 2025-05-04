@@ -21,7 +21,7 @@ ser = None
 
 # === Serial Connection ===
 try:
-    ser = serial.Serial('/dev/ttyAML6', 9600, timeout=1)
+    ser = serial.Serial('/dev/ttyAML0', 9600, timeout=1)
     print("Serial open with Success!")
 except serial.SerialException as e:
     print(f"Error in serial port: {e}")
