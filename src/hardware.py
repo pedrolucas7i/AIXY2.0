@@ -17,6 +17,7 @@
 """
 
 import serial
+ser = None
 
 # === Serial Connection ===
 try:
