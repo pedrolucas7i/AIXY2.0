@@ -31,42 +31,51 @@ except Exception as e:
 
 # === MOTOR CONTROL ===
 def drive_forward():
-    ser.write("drive_forward\n".encode())
+    if ser and ser.is_open:
+        ser.write("drive_forward\n".encode())
 
 def drive_backward():
-    ser.write("drive_backward\n".encode())
+    if ser and ser.is_open:
+        ser.write("drive_backward\n".encode())
 
 def drive_left():
-    ser.write("drive_left\n".encode())
+    if ser and ser.is_open:
+        ser.write("drive_left\n".encode())
 
 def drive_right():
-    ser.write("drive_right\n".encode())
+    if ser and ser.is_open:
+        ser.write("drive_right\n".encode())
 
 def drive_release():
-    ser.write("drive_release\n".encode())
+    if ser and ser.is_open:
+        ser.write("drive_release\n".encode())
 
 def drive_stop():
-    ser.write("drive_stop\n".encode())
+    if ser and ser.is_open:
+        ser.write("drive_stop\n".encode())
 
 
 # === ULTRASONIC SENSOR ===
 def get_distance():
-    ser.write("ultrassonic_data\n".encode())
-    response = ser.readline().decode('utf-8').strip()
-    try:
-        return float(response)
-    except ValueError:
-        print(f"Invalid Response: {response}")
-        return None
+    if ser and ser.is_open:
+        ser.write("ultrassonic_data\n".encode())
+        response = ser.readline().decode('utf-8').strip()
+        try:
+            return float(response)
+        except ValueError:
+            print(f"Invalid Response: {response}")
+            return None
 
 
 # === SERVO CONTROL ===
 def clamp_catch():
-    ser.write("arm_down\n".encode())
-    ser.write("clamp_catch\n".encode())
-    ser.write("arm_up\n".encode())
+    if ser and ser.is_open:
+        ser.write("arm_down\n".encode())
+        ser.write("clamp_catch\n".encode())
+        ser.write("arm_up\n".encode())
 
 def clamp_release():
-    ser.write("arm_down\n".encode())
-    ser.write("clamp_release\n".encode())
-    ser.write("arm_up\n".encode())
+    if ser and ser.is_open:
+        ser.write("arm_down\n".encode())
+        ser.write("clamp_release\n".encode())
+        ser.write("arm_up\n".encode())
