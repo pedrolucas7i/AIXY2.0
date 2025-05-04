@@ -124,22 +124,27 @@ def drive(direction):
 
 def manualControl():
     import pygame
+    import hardware
     import xbox360_controller
 
     pygame.init()
     controller = xbox360_controller.Controller()
     while True:
-        pygame.event.get()
         a, y = controller.get_left_stick()
         x, b = controller.get_right_stick()
-        if x < 0:
-            drive('left')
+
+        if x == 0 and y == 0:
+            hardware.drive_release()
+        elif x < 0:
+            hardware.drive_left()
         elif x > 0:
-            drive('right')
+            hardware.drive_right()
         elif y < 0:
-            drive('forward')
+            hardware.drive_forward()
         elif y > 0:
-            drive('backward')
+            hardware.drive_backward()
+
+        drive('release')
 
 
 def LVMAD_thread(thingToSearch=None, additionalPrompt=None):
