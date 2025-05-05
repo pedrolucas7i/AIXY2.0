@@ -49,6 +49,9 @@ CAMERA = False
 """ Camera Connection """
 CAMERA_USB=True
 
+""" ONLY MANUAL CONTROL"""
+ONLY_MANUAL_CONTROL=False
+
 
 # Variables
 manual_mode = False
@@ -325,13 +328,16 @@ def SBM_thread():
     
 
 def main():
-    import threading
-    import WCS_thread
+    if ONLY_MANUAL_CONTROL:
+        manualControl()
+    else:
+        import threading
+        import WCS_thread
 
-    if LVMAD:
-        print("🟢 Starting Large Vision Model Autonomous Drive thread...")
-        LVMAD_PROCESSOR = threading.Thread(target=LVMAD_thread, args=(thingToSearch, additionalPrompt), daemon=True)
-        LVMAD_PROCESSOR.start()
+        if LVMAD:
+            print("🟢 Starting Large Vision Model Autonomous Drive thread...")
+            LVMAD_PROCESSOR = threading.Thread(target=LVMAD_thread, args=(thingToSearch, additionalPrompt), daemon=True)
+            LVMAD_PROCESSOR.start()
 
 
     if LLMAC:
@@ -350,9 +356,3 @@ def main():
         print("🟢 Starting Web Camera Stream thread...")
         WCS_PROCESSOR = threading.Thread(target=WCS_thread.run(), daemon=True)
         WCS_PROCESSOR.start()
-
-
-
-#main()
-
-manualControl()
