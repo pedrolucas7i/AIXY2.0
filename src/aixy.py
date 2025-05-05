@@ -37,6 +37,9 @@ TTS = False
 """ Speech to Text """
 STT = False
 
+""" ONLY MANUAL CONTROL"""
+ONLY_MANUAL_CONTROL = True
+
 """ AIXY COMMANDS """
 COMMANDS = False
 
@@ -47,11 +50,7 @@ MOTORS = False
 CAMERA = False
 
 """ Camera Connection """
-CAMERA_USB=True
-
-""" ONLY MANUAL CONTROL"""
-ONLY_MANUAL_CONTROL=False
-
+CAMERA_USB = True
 
 # Variables
 manual_mode = False
@@ -321,7 +320,7 @@ def SBM_thread():
 """
 ===========================================================================================================================================
 ===========================================================================================================================================
-                                                                WEB CAMERA STREAM
+                                                                MAIN AIXY2.0 CODE
 ===========================================================================================================================================
 ===========================================================================================================================================
 """
@@ -354,5 +353,5 @@ def main():
 
     if WCS:
         print("🟢 Starting Web Camera Stream thread...")
-        WCS_PROCESSOR = threading.Thread(target=WCS_thread.run(), daemon=True)
+        WCS_PROCESSOR = threading.Thread(target=WCS_thread.run, daemon=True)
         WCS_PROCESSOR.start()

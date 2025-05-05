@@ -1,0 +1,35 @@
+/* General page styles */
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #f0f0f0;
+    margin: 0;
+    padding: 20px;
+  }
+  
+  /* Joystick base circle */
+  .joystick-base {
+    width: 200px;
+    height: 200px;
+    background: #ccc;
+    border-radius: 50%;
+    position: relative;
+    touch-action: none;
+    margin-top: 20px;
+  }
+  
+  /* Joystick thumb (movable part) */
+  .joystick-thumb {
+    width: 80px;
+    height: 80px;
+    background: #333;
+    border-radius: 50%;
+    position: absolute;
+    top: 60px;
+    left: 60px;
+    touch-action: none;
+    transition: all 0.1s;
+  }
+  

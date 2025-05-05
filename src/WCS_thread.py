@@ -18,14 +18,35 @@
 
 from flask import Flask, render_template, Response
 from camera import CameraUSB
+import hardware
 
 #Initialize the Flask app
 app = Flask(__name__, template_folder="./webserver")
-camera = CameraUSB()
+#camera = CameraUSB()
 
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/forward')
+def forward():
+    hardware.drive_forward()
+
+@app.route('/left')
+def left():
+    hardware.drive_left()
+
+@app.route('/right')
+def right():
+    hardware.drive_right()
+
+@app.route('/backward')
+def backward():
+    hardware.drive_backward()
+
+@app.route('/release')
+def release():
+    hardware.drive_release()
 
 @app.route('/stream')
 def stream():
