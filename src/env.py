@@ -20,16 +20,51 @@
 from dotenv import load_dotenv
 import os
 
+""" Large Vision Model Automonous Drive """
+LVMAD = False
+
+""" Large Languade Model Autonomous Conversations """
+LLMAC = False
+
+""" Obstacle Avoidance """
+OA = False
+
+""" Switch Between Modes """
+SBM = False
+
+""" Web Camera Stream """
+WCS = False
+
+""" Text to Speech """
+TTS = False
+
+""" Speech to Text """
+STT = False
+
+""" ONLY MANUAL CONTROL"""
+ONLY_MANUAL_CONTROL = True
+
+""" AIXY COMMANDS """
+COMMANDS = False
+
+""" Motors """
+MOTORS = False
+
+""" Camera """
+CAMERA = True
+
+""" Camera Connection """
+CAMERA_USB = True
+
 # Load environment variables from the .env file
 load_dotenv()
 AIXY_SOFTWARE_VERSION = os.getenv('AIXY_SOFTWARE_VERSION')
-FIRST_EN_MESSAGE = os.getenv('FIRST_EN_MESSAGE')
+FIRST_MESSAGE = os.getenv('FIRST_MESSAGE')
 OLLAMA_VISION_MODEL = os.getenv('OLLAMA_VISION_MODEL')
 OLLAMA_LANGUAGE_MODEL = os.getenv('OLLAMA_LANGUAGE_MODEL')
-OLLAMA_EN_SEARCH_VISUAL_PROMPT = os.getenv('OLLAMA_EN_SEARCH_VISUAL_PROMPT')
-OLLAMA_VISION_DECISION_PROMPT = os.getenv('OLLAMA_VISION_DECISION_PROMPT')
+OLLAMA_VISUAL_FINDING_PROMPT = os.getenv('OLLAMA_VISUAL_FINDING_PROMPT')
+OLLAMA_VISUAL_DECISION_PROMPT = os.getenv('OLLAMA_VISUAL_DECISION_PROMPT')
 OLLAMA_USER_ADDITIONAL_PROMPT = os.getenv('OLLAMA_USER_ADDITIONAL_PROMPT')
-DB_FILE = os.getenv('DB_FILE')
 OLLAMA_HOST = os.getenv('OLLAMA_HOST')
 WHISPER_HOST = os.getenv('WHISPER_HOST')
 

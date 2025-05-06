@@ -16,41 +16,7 @@
 ===============================================================================================================================================================
 """
 
-""" Large Vision Model Automonous Drive """
-LVMAD = False
-
-""" Large Languade Model Autonomous Conversations """
-LLMAC = False
-
-""" Obstacle Avoidance """
-OA = False
-
-""" Switch Between Modes """
-SBM = False
-
-""" Web Camera Stream """
-WCS = False
-
-""" Text to Speech """
-TTS = False
-
-""" Speech to Text """
-STT = False
-
-""" ONLY MANUAL CONTROL"""
-ONLY_MANUAL_CONTROL = True
-
-""" AIXY COMMANDS """
-COMMANDS = False
-
-""" Motors """
-MOTORS = False
-
-""" Camera """
-CAMERA = False
-
-""" Camera Connection """
-CAMERA_USB = True
+import env
 
 # Variables
 manual_mode = False
@@ -66,40 +32,96 @@ additionalPrompt = None
 """
 
 
-def decide(additionalPrompt=None):
-    """ Decide the action of AIXY based in camera image, and, if passed, the additional prompt"""
+def decide():
+    """ Decide the action of AIXY based in camera image"""
 
-    if CAMERA_USB:
+    if env.CAMERA_USB:
         from camera import CameraUSB
         camera = CameraUSB()
     else:
         from camera import Camera
         camera = Camera()
     
-    camera = camera.CameraUSB()
-    if additionalPrompt:
-        decision = llm.get(env.OLLAMA_VISION_MODEL, env.OLLAMA_VISION_DECISION_PROMPT, camera.get_frame() if CAMERA else None)
-    else:
-        decision = llm.get(env.OLLAMA_VISION_MODEL, env.OLLAMA_VISION_DECISION_PROMPT, camera.get_frame() if CAMERA else None)
+    decision = llm.get(
+        env.OLLAMA_VISION_MODEL,
+        """
+        Analyze the received image and determine the best action for a mobile robot based on the visible environment. Choose only one of the following words as output:
+
+        'forward'
+        'slow forward'
+        'fast forward'
+        'left'
+        'right'
+        'left fast'   (default decision to avoid colisions and obstacules)
+        'right fast'
+        'left very fast'
+        'right very fast'
+        'left hiper fast'
+        'right hiper fast'
+
+        Decide based on the following principles:
+
+        Avoid collisions: Never select a direction that would lead the robot into an obstacle.
+        Optimize the route: Prioritize paths that lead the robot to its destination in the most efficient and safe manner.
+        Avoid being stationary: The robot should keep moving whenever it is safe and feasible.
+        Minimize 'backward' usage: The camera does not cover this area, making this option less reliable and recommended only when no other safe solution exists.
+        Adjust speed to the environment: In open areas, increase speed; in tight spaces, slow down.
+        Provide only one word as a response, with no additional explanations.
+        """,
+        camera.get_frame() if CAMERA else None
+    )
     
     print(f"Decided: {decision}")
     return decision
 
 
-def find(thing, additionalPrompt=None):
-    """ Decide the action of AIXY based in camera image and the thing to search, and, if passed, the additional prompt"""
+def find(thing):
+    """ Decide the action of AIXY based in camera image and the thing to search"""
     
-    if CAMERA_USB:
+    if env.CAMERA_USB:
         from camera import CameraUSB
         camera = CameraUSB()
     else:
         from camera import Camera
         camera = Camera()
 
-    if additionalPrompt:
-        decision = llm.get(env.OLLAMA_VISION_MODEL, None, camera.get_frame() if CAMERA else None)
-    else:
-        decision = llm.get(env.OLLAMA_VISION_MODEL, None, camera.get_frame() if CAMERA else None)
+    decision = llm.get(
+        env.OLLAMA_VISION_MODEL, F"""
+        Analyze the received image and determine the best action for a mobile robot to locate and reach the object called: '{thing}'. Once the object is clearly identified and the robot is within 10 centimeters of it, respond only with the word:
+
+        'finded'
+
+        Otherwise, choose and respond with only one of the following action words to guide the robot:
+
+        'forward'
+        'slow forward'
+        'fast forward'
+        'left'
+        'right'
+        'left fast' (default to avoid collisions and obstacles)
+        'right fast'
+        'left very fast'
+        'right very fast'
+        'left hiper fast'
+        'right hiper fast'
+
+        Decision principles:
+
+        Find the object: Prioritize paths that move toward the object '{thing}'.
+
+        Confirm proximity: When the object is visually confirmed and estimated to be within 10 cm, return only 'finded'.
+
+        Avoid collisions: Never choose a direction that would result in hitting an obstacle.
+
+        Keep moving: Do not stop unless the object is found.
+
+        Adjust speed: In open areas, prefer faster speeds; in tight or cluttered areas, go slower.
+
+        One-word output only: Return only the chosen word — no explanations or additional text.
+
+        """,
+        camera.get_frame() if CAMERA else None
+    )
     
     print(f"Decided: {decision}")
     return decision
@@ -179,7 +201,7 @@ def LVMAD_thread(thingToSearch=None, additionalPrompt=None):
     while True:
 
         # If MOTORS has set as true, use motors, if not, just print the decision without execute the action
-        if MOTORS:
+        if env.MOTORS:
             import hardware
 
             if manual_mode:
@@ -187,7 +209,7 @@ def LVMAD_thread(thingToSearch=None, additionalPrompt=None):
                 continue  # Skip AI processing while in manual mode
 
             # If OA is defined as true, and the distance to the ultrassonic sensor is more than 8cm, AIXY think and execute the decision, if not, avoid Obstacle, if OA is not set as true (false) just think and execute the action
-            if OA:
+            if env.OA:
                 if hardware.get_distance() > 8:
                     if thingToSearch == None:
                         decision = decide(additionalPrompt).strip().strip("'").lower()
@@ -225,7 +247,7 @@ def LVMAD_thread(thingToSearch=None, additionalPrompt=None):
 def generate_response(user_text):
     import env
     prompt = (
-        "You are an AI assistant that responds clearly and efficiently.\n"
+        "You are AIXY an AI assistant that responds clearly and efficiently.\n"
         f"- Purpose: {env.PURPOSE}\n"
         f"- Personality: {env.PERSONALITY}\n"
         f"- Model: {env.OLLAMA_LANGUAGE_MODEL}\n"
@@ -286,7 +308,7 @@ def LLMAC_thread():
 def SBM_thread():
     import pygame
 
-    if TTS:
+    if env.TTS:
         import speaker
 
     pygame.init()
@@ -309,7 +331,7 @@ def SBM_thread():
             mode = "MANUAL" if manual_mode else "AUTONOMOUS"
             print(f"Switched to {mode} mode.")
 
-            if TTS:
+            if env.TTS:
                 tts.speak(f"{mode} mode activated.")
             
             time.sleep(1.5)  # Prevent multiple toggles from one press
@@ -327,31 +349,31 @@ def SBM_thread():
     
 
 def main():
-    if ONLY_MANUAL_CONTROL:
+    if env.ONLY_MANUAL_CONTROL:
         manualControl()
     else:
         import threading
         import WCS_thread
 
-        if LVMAD:
+        if env.LVMAD:
             print("🟢 Starting Large Vision Model Autonomous Drive thread...")
             LVMAD_PROCESSOR = threading.Thread(target=LVMAD_thread, args=(thingToSearch, additionalPrompt), daemon=True)
             LVMAD_PROCESSOR.start()
 
 
-    if LLMAC:
+    if env.LLMAC:
         print("🟢 Starting Large Languade Model Autonomous Conversation thread...")
         LLMAC_PROCESSOR = threading.Thread(target=LLMAC_thread, daemon=True)
         LLMAC_PROCESSOR.start()
     
 
-    if SBM:
+    if env.SBM:
         print("🟢 Starting Switch Between Modes thread...")
         SBM_PROCESSOR = threading.Thread(target=SBM_thread, daemon=True)
         SBM_PROCESSOR.start()
 
 
-    if WCS:
+    if env.WCS:
         print("🟢 Starting Web Camera Stream thread...")
         WCS_PROCESSOR = threading.Thread(target=WCS_thread.run, daemon=True)
         WCS_PROCESSOR.start()
