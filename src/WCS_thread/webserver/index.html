@@ -8,7 +8,9 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='CSS/style.css') }}">
 </head>
 <body>
+    {% if env.CAMERA %}
     <img id="camera_image" src="{{ url_for('stream') }}" height="75%">
+    {% endif %}
     <div class="joystick-base" id="joystick">
         <div class="joystick-thumb" id="thumb"></div>
     </div>
