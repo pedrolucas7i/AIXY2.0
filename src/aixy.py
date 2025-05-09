@@ -342,6 +342,71 @@ def SBM_thread():
 """
 ===========================================================================================================================================
 ===========================================================================================================================================
+                                                                WEB CAMERA STREAM
+===========================================================================================================================================
+===========================================================================================================================================
+"""
+
+
+def WCS_thread():
+    from flask import Flask, render_template, Response
+    import env
+
+    if env.CAMERA:
+        from camera import CameraUSB
+        camera = CameraUSB()
+
+    if env.MOTORS:
+        import hardware
+
+
+    #Initialize the Flask app
+    app = Flask(__name__, template_folder="./WCS_thread/webserver", static_folder="./WCS_thread/static")
+
+    @app.route('/')
+    def index():
+        return render_template('index.html', camera=env.CAMERA)
+
+    if env.MOTORS:
+        @app.route('/forward')
+        def forward():
+            hardware.drive_forward()
+            return render_template('index.html', camera=env.CAMERA)
+
+        @app.route('/left')
+        def left():
+            hardware.drive_left()
+            return render_template('index.html', camera=env.CAMERA)
+
+        @app.route('/right')
+        def right():
+            hardware.drive_right()
+            return render_template('index.html', camera=env.CAMERA)
+
+        @app.route('/backward')
+        def backward():
+            hardware.drive_backward()
+            return render_template('index.html', camera=env.CAMERA)
+
+        @app.route('/release')
+        def release():
+            hardware.drive_release()
+            return render_template('index.html', camera=env.CAMERA)
+
+    if env.CAMERA:
+        @app.route('/stream')
+        def stream():
+            return Response(camera.get_web_stream(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+    def run():
+        app.run(debug=True, port=9900, host="0.0.0.0")
+
+    run()
+
+
+"""
+===========================================================================================================================================
+===========================================================================================================================================
                                                                 MAIN AIXY2.0 CODE
 ===========================================================================================================================================
 ===========================================================================================================================================
@@ -377,58 +442,7 @@ def main():
 
     if env.WCS:
         print("🟢 Starting Web Camera Stream thread...")
-        from flask import Flask, render_template, Response
-        import env
-
-        if env.CAMERA:
-            from camera import CameraUSB
-            camera = CameraUSB()
-
-        if env.MOTORS:
-            import hardware
-
-
-        #Initialize the Flask app
-        app = Flask(__name__, template_folder="./WCS_thread/webserver", static_folder="./WCS_thread/static")
-
-        @app.route('/')
-        def index():
-            return render_template('index.html', camera=env.CAMERA)
-
-        if env.MOTORS:
-            @app.route('/forward')
-            def forward():
-                hardware.drive_forward()
-                return render_template('index.html', camera=env.CAMERA)
-
-            @app.route('/left')
-            def left():
-                hardware.drive_left()
-                return render_template('index.html', camera=env.CAMERA)
-
-            @app.route('/right')
-            def right():
-                hardware.drive_right()
-                return render_template('index.html', camera=env.CAMERA)
-
-            @app.route('/backward')
-            def backward():
-                hardware.drive_backward()
-                return render_template('index.html', camera=env.CAMERA)
-
-            @app.route('/release')
-            def release():
-                hardware.drive_release()
-                return render_template('index.html', camera=env.CAMERA)
-
-        if env.CAMERA:
-            @app.route('/stream')
-            def stream():
-                return Response(camera.get_web_stream(), mimetype='multipart/x-mixed-replace; boundary=frame')
-
-        def run():
-            app.run(debug=True, port=9900, host="0.0.0.0")
-
-        run()
+        WCS_PROCESSOR = threading.Thread(target=WCS_thread, daemon=True)
+        WCS_PROCESSOR.start()
 
 main()
