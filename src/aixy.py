@@ -399,27 +399,27 @@ def main():
             @app.route('/forward')
             def forward():
                 hardware.drive_forward()
-                return None
+                return render_template('index.html', camera=env.CAMERA)
 
             @app.route('/left')
             def left():
                 hardware.drive_left()
-                return None
+                return render_template('index.html', camera=env.CAMERA)one
 
             @app.route('/right')
             def right():
                 hardware.drive_right()
-                return None
+                return render_template('index.html', camera=env.CAMERA)
 
             @app.route('/backward')
             def backward():
                 hardware.drive_backward()
-                return None
+                return render_template('index.html', camera=env.CAMERA)
 
             @app.route('/release')
             def release():
                 hardware.drive_release()
-                return None
+                return Nonrender_template('index.html', camera=env.CAMERA)e
 
         if env.CAMERA:
             @app.route('/stream')
