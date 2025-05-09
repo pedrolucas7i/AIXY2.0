@@ -442,5 +442,3 @@ def main():
     if env.WCS:
         print("🟢 Starting Web Camera Stream thread...")
         WCS_thread()
-
-main()
