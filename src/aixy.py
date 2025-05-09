@@ -350,12 +350,12 @@ def SBM_thread():
 
 def main():
     import threading
-    import WCS_thread
+    import env
+
     if env.ONLY_MANUAL_CONTROL:
         MC_PROCESSOR = threading.Thread(target=manualControl, daemon=True)
         MC_PROCESSOR.start()
     else:
-        import WCS_thread
 
         if env.LVMAD:
             print("🟢 Starting Large Vision Model Autonomous Drive thread...")
