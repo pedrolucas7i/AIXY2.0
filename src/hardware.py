@@ -142,12 +142,16 @@ def system_release():
 
 def arm_down():
     send_command("arm_down")
+    time.sleep(0.1)
 
 def arm_up():
     send_command("arm_up")
+    time.sleep(0.1)
 
 def clamp_catch():
     send_command("clamp_catch")
+    time.sleep(0.1)
 
 def clamp_release():
     send_command("clamp_release")
+    time.sleep(0.1)
