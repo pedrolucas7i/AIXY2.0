@@ -48,7 +48,7 @@ ONLY_MANUAL_CONTROL = True
 COMMANDS = False
 
 """ Motors """
-MOTORS = False
+MOTORS = True
 
 """ Camera """
 CAMERA = False
