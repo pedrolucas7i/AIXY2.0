@@ -37,6 +37,8 @@ Servo clamp;
 NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE);   // NewPing setup of pins and maximum distance.
 
 int backward_pwm = 175;                               // PWM used to drive backward
+int armPos = 180;                                     // Variable that saves the actual arm servo position
+int clampPos = 90;                                    // Variable that saves the actual clamp servo position
 
 void setup() {
   pinMode(PIN_MOTOR1_IN1, OUTPUT);                    // Defining PIN's as ouptuts
@@ -147,31 +149,35 @@ void drive_stop() {
 // === SERVO AND SENSOR COMMANDS ===
 
 void arm_down() {
-  for (int pos = 180; pos > 90; pos--) {
+  for (int pos = armPos; pos > 90; pos--) {
     arm.write(pos);
     delay(17);
   }
+  armPos = 90;
 }
 
 void arm_up() {
-  for (int pos = 90; pos < 180; pos++) {
+  for (int pos = armPos; pos < 180; pos++) {
     arm.write(pos);
     delay(17);
   }
+  armPos = 180;
 }
 
 void clamp_release() {
-  for (int pos = 170; pos > 90; pos--) {
+  for (int pos = clampPos; pos > 90; pos--) {
     clamp.write(pos);
     delay(15);
   }
+  clampPos = 90;
 }
 
 void clamp_catch() {
-  for (int pos = 90; pos < 170; pos++) {
+  for (int pos = clampPos; pos < 170; pos++) {
     clamp.write(pos);
     delay(15);
   }
+  clampPos = 170;
 }
 
 float ultrassonic_data() {
