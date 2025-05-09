@@ -149,11 +149,11 @@ void drive_stop() {
 // === SERVO AND SENSOR COMMANDS ===
 
 void arm_down() {
-  for (int pos = armPos; pos > 90; pos--) {
+  for (int pos = armPos; pos > 110; pos--) {
     arm.write(pos);
-    delay(17);
+    delay(16);
   }
-  armPos = 90;
+  armPos = 110;
 }
 
 void arm_up() {
