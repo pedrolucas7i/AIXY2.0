@@ -349,10 +349,12 @@ def SBM_thread():
     
 
 def main():
+    import threading
+    import WCS_thread
     if env.ONLY_MANUAL_CONTROL:
-        manualControl()
+        MC_PROCESSOR = threading.Thread(target=manualControl, daemon=True)
+	MC_PROCESSOR.start()
     else:
-        import threading
         import WCS_thread
 
         if env.LVMAD:
@@ -377,3 +379,5 @@ def main():
         print("🟢 Starting Web Camera Stream thread...")
         WCS_PROCESSOR = threading.Thread(target=WCS_thread.run, daemon=True)
         WCS_PROCESSOR.start()
+
+main()

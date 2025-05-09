@@ -33,7 +33,7 @@ OA = False
 SBM = False
 
 """ Web Camera Stream """
-WCS = False
+WCS = True
 
 """ Text to Speech """
 TTS = False
@@ -51,7 +51,7 @@ COMMANDS = False
 MOTORS = False
 
 """ Camera """
-CAMERA = True
+CAMERA = False
 
 """ Camera Connection """
 CAMERA_USB = True
