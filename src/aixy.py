@@ -353,7 +353,7 @@ def main():
     import WCS_thread
     if env.ONLY_MANUAL_CONTROL:
         MC_PROCESSOR = threading.Thread(target=manualControl, daemon=True)
-	MC_PROCESSOR.start()
+        MC_PROCESSOR.start()
     else:
         import WCS_thread
 
