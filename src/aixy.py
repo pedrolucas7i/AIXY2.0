@@ -185,14 +185,14 @@ def manualControl():
                 command = "drive_forward" if y < 0 else "drive_backward"
 
             if up == 1:
-                command = "arm_up"
+                hardware.arm_up()
             elif down == 1:
-                command = "arm_down"
+                hardware.arm_down()
 
             if LEFT_BUMP == 1:
-                command = "clamp_catch"
+                hardware.clamp_catch()
             elif RIGHT_BUMP == 1:
-                command = "clamp_release"
+                hardware.clamp_release()
 
             # Send command only if it's different from the last one
             if command != prev_command:
