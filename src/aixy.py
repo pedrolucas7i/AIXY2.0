@@ -419,7 +419,7 @@ def main():
             @app.route('/release')
             def release():
                 hardware.drive_release()
-                return render_template('index.html', camera=env.CAMERA)e
+                return render_template('index.html', camera=env.CAMERA)
 
         if env.CAMERA:
             @app.route('/stream')
