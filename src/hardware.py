@@ -120,7 +120,7 @@ def get_distance():
 
 
 # === SERVO CONTROL ===
-def clamp_catch():
+def system_catch():
     """
     Lowers arm, closes clamp, raises arm — with command acknowledgment.
     """
@@ -130,7 +130,7 @@ def clamp_catch():
     time.sleep(0.1)
     send_command("arm_down")
 
-def clamp_release():
+def system_release():
     """
     Lowers arm, opens clamp, raises arm — with command acknowledgment.
     """
@@ -139,3 +139,15 @@ def clamp_release():
     send_command("clamp_release")
     time.sleep(0.1)
     send_command("arm_down")
+
+def arm_down():
+    send_command("arm_down")
+
+def arm_up():
+    send_command("arm_up")
+
+def clamp_catch():
+    send_command("clamp_catch")
+
+def clamp_release():
+    send_command("clamp_release")

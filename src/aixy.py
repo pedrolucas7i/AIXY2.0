@@ -164,9 +164,22 @@ def manualControl():
         while True:
             pygame.event.pump()  # Update internal pygame state
 
-            # Get joystick axes
-            a, y = controller.get_left_stick()
-            x, b = controller.get_right_stick()
+            # Get joystick axes and pad buttons
+            ax, y = controller.get_left_stick()
+            x, by = controller.get_right_stick()
+            up, right, down, left = controller.get_pad()
+
+            A,
+            B,
+            X,
+            Y,
+            LEFT_BUMP,
+            RIGHT_BUMP,
+            BACK,
+            START,
+            NONE
+            LEFT_STICK_BTN
+            RIGHT_STICK_BTN = controller.get_buttons()
 
             # Deadzone filter
             threshold = 0.2
@@ -180,6 +193,16 @@ def manualControl():
                 command = "drive_left" if x < 0 else "drive_right"
             else:
                 command = "drive_forward" if y < 0 else "drive_backward"
+
+            if up == 1:
+                command = "arm_up"
+            elif down == 1:
+                command = "arm_down"
+
+            if LEFT_BUMP == 1:
+                command = "clamp_catch"
+            elif RIGHT_BUMP == 1:
+                command = "clamp_release"
 
             # Send command only if it's different from the last one
             if command != prev_command:
