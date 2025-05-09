@@ -169,17 +169,7 @@ def manualControl():
             x, by = controller.get_right_stick()
             up, right, down, left = controller.get_pad()
 
-            A,
-            B,
-            X,
-            Y,
-            LEFT_BUMP,
-            RIGHT_BUMP,
-            BACK,
-            START,
-            NONE
-            LEFT_STICK_BTN
-            RIGHT_STICK_BTN = controller.get_buttons()
+            A, B, X, Y, LEFT_BUMP, RIGHT_BUMP, BACK, START, NONE, LEFT_STICK_BTN, RIGHT_STICK_BTN = controller.get_buttons()
 
             # Deadzone filter
             threshold = 0.2
