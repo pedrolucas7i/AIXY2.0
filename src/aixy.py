@@ -404,7 +404,7 @@ def main():
             @app.route('/left')
             def left():
                 hardware.drive_left()
-                return render_template('index.html', camera=env.CAMERA)one
+                return render_template('index.html', camera=env.CAMERA)
 
             @app.route('/right')
             def right():
@@ -419,7 +419,7 @@ def main():
             @app.route('/release')
             def release():
                 hardware.drive_release()
-                return Nonrender_template('index.html', camera=env.CAMERA)e
+                return render_template('index.html', camera=env.CAMERA)e
 
         if env.CAMERA:
             @app.route('/stream')
