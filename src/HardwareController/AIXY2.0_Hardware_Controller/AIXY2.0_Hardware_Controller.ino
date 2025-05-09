@@ -24,8 +24,8 @@
 #define PIN_MOTOR1_IN2 5                              // Pin responsible for counterclockwise control
 #define PIN_MOTOR2_IN2 6                              // Pin responsible for counterclockwise control
 
-#define PIN_ARM 2                                     // Pin responsible for ARM SERVO
-#define PIN_CLAMP 7                                   // Pin responsible for CLAMP SERVO
+#define PIN_ARM 7                                     // Pin responsible for ARM SERVO
+#define PIN_CLAMP 2                                   // Pin responsible for CLAMP SERVO
 
 #define TRIGGER_PIN  11                               // Arduino pin tied to trigger pin on the ultrasonic sensor.
 #define ECHO_PIN     10                               // Arduino pin tied to echo pin on the ultrasonic sensor.
