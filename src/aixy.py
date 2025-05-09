@@ -399,22 +399,27 @@ def main():
             @app.route('/forward')
             def forward():
                 hardware.drive_forward()
+                return None
 
             @app.route('/left')
             def left():
                 hardware.drive_left()
+                return None
 
             @app.route('/right')
             def right():
                 hardware.drive_right()
+                return None
 
             @app.route('/backward')
             def backward():
                 hardware.drive_backward()
+                return None
 
             @app.route('/release')
             def release():
                 hardware.drive_release()
+                return None
 
         if env.CAMERA:
             @app.route('/stream')
