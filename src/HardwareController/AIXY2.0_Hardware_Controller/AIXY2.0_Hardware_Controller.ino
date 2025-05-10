@@ -104,7 +104,7 @@ void drive_forward() {
   digitalWrite(PIN_MOTOR2_IN2, LOW);
   digitalWrite(PIN_MOTOR1_IN1, HIGH);
   digitalWrite(PIN_MOTOR2_IN1, HIGH);
-  delay(1000);
+  delay(20);
 }
 
 void drive_backward() {
@@ -112,7 +112,7 @@ void drive_backward() {
   digitalWrite(PIN_MOTOR2_IN1, LOW);
   analogWrite(PIN_MOTOR1_IN2, backward_pwm);
   analogWrite(PIN_MOTOR2_IN2, backward_pwm);
-  delay(1000);
+  delay(20);
 }
 
 void drive_left() {
@@ -120,7 +120,7 @@ void drive_left() {
   digitalWrite(PIN_MOTOR2_IN1, HIGH);
   digitalWrite(PIN_MOTOR1_IN2, HIGH);
   digitalWrite(PIN_MOTOR2_IN2, LOW);
-  delay(700);
+  delay(20);
 }
 
 void drive_right() {
@@ -128,7 +128,7 @@ void drive_right() {
   digitalWrite(PIN_MOTOR2_IN1, LOW);
   digitalWrite(PIN_MOTOR1_IN2, LOW);
   digitalWrite(PIN_MOTOR2_IN2, HIGH);
-  delay(700);
+  delay(20);
 }
 
 void drive_release() {
