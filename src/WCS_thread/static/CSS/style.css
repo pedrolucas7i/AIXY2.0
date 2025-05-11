@@ -1,15 +1,4 @@
-/* General page styles */
-body {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: #f0f0f0;
-    margin: 0;
-    padding: 20px;
-  }
-  
-  /* Joystick base circle */
+   /* Joystick base circle */
   .joystick-base {
     width: 200px;
     height: 200px;
