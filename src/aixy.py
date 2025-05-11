@@ -22,6 +22,7 @@ import env
 manual_mode = False
 thingToSearch = None
 additionalPrompt = None
+decision = None
 
 """
 ===========================================================================================================================================
@@ -34,6 +35,7 @@ additionalPrompt = None
 
 def decide():
     """ Decide the action of AIXY based in camera image"""
+    global decision
 
     if env.CAMERA_USB:
         from camera import CameraUSB
@@ -47,17 +49,10 @@ def decide():
         """
         Analyze the received image and determine the best action for a mobile robot based on the visible environment. Choose only one of the following words as output:
 
+        'backward' (Try not use this, except in danger cases)
         'forward'
-        'slow forward'
-        'fast forward'
-        'left'
+        'left' (Default decision to avoid colisions and obstacules)
         'right'
-        'left fast'   (default decision to avoid colisions and obstacules)
-        'right fast'
-        'left very fast'
-        'right very fast'
-        'left hiper fast'
-        'right hiper fast'
 
         Decide based on the following principles:
 
@@ -77,7 +72,8 @@ def decide():
 
 def find(thing):
     """ Decide the action of AIXY based in camera image and the thing to search"""
-    
+    global decision
+
     if env.CAMERA_USB:
         from camera import CameraUSB
         camera = CameraUSB()
@@ -93,17 +89,10 @@ def find(thing):
 
         Otherwise, choose and respond with only one of the following action words to guide the robot:
 
+        'backward' (Try not use this, except in danger cases)
         'forward'
-        'slow forward'
-        'fast forward'
-        'left'
+        'left' (Default decision to avoid colisions and obstacules)
         'right'
-        'left fast' (default to avoid collisions and obstacles)
-        'right fast'
-        'left very fast'
-        'right very fast'
-        'left hiper fast'
-        'right hiper fast'
 
         Decision principles:
 
@@ -154,6 +143,8 @@ def manualControl():
     import hardware
     import xbox360_controller
 
+    global decision
+
     pygame.init()
     clock = pygame.time.Clock()
     controller = xbox360_controller.Controller()
@@ -198,6 +189,21 @@ def manualControl():
             if command != prev_command:
                 getattr(hardware, command)()  # Call hardware.drive_*
                 prev_command = command
+
+            if command == "drive_release":
+                pass
+
+            elif command == "drive_left":
+                decision = "left"
+
+            elif command == "drive_right":
+                decision = "right"
+
+            elif command == "drive_forward":
+                decision = "forward"
+
+            elif command == "drive_backward":
+                decision = "backward"
 
             sleep(0.1)  # Lowered delay to improve responsiveness
             clock.tick(30)  # Prevent CPU overuse
@@ -365,6 +371,8 @@ def WCS_thread():
     from flask import Flask, render_template, Response
     import env
 
+    global decision, manual_mode
+
     if env.CAMERA:
         from camera import CameraUSB
         camera = CameraUSB()
@@ -378,39 +386,49 @@ def WCS_thread():
 
     @app.route('/')
     def index():
-        return render_template('index.html', camera=env.CAMERA)
+        return render_template('index.html', camera=env.CAMERA, manual_control=manual_mode)
 
     if env.MOTORS:
         @app.route('/forward')
         def forward():
             hardware.drive_forward()
-            return render_template('index.html', camera=env.CAMERA)
+            return render_template('index.html', camera=env.CAMERA, manual_control=manual_mode)
 
         @app.route('/left')
         def left():
             hardware.drive_left()
-            return render_template('index.html', camera=env.CAMERA)
+            return render_template('index.html', camera=env.CAMERA, manual_control=manual_mode)
 
         @app.route('/right')
         def right():
             hardware.drive_right()
-            return render_template('index.html', camera=env.CAMERA)
+            return render_template('index.html', camera=env.CAMERA, manual_control=manual_mode)
 
         @app.route('/backward')
         def backward():
             hardware.drive_backward()
-            return render_template('index.html', camera=env.CAMERA)
+            return render_template('index.html', camera=env.CAMERA, manual_control=manual_mode)
 
         @app.route('/release')
         def release():
             hardware.drive_release()
-            return render_template('index.html', camera=env.CAMERA)
+            return render_template('index.html', camera=env.CAMERA, manual_control=manual_mode)
 
     if env.CAMERA:
         @app.route('/stream')
         def stream():
             return Response(camera.get_web_stream(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
+    if env.LVMAD:
+        @app.route('/decision')
+        def decision_image():
+            return redirect(url_for('static', filename=f"IMG/AIXY2.0-{decision}.png"))
+    
+    if not env.ONLY_MANUAL_CONTROL:
+        @app.route('/control')
+        def control():
+            manual_mode = not manual_mode
+            return render_template('index.html', camera=env.CAMERA, manual_control=manual_mode)
     def run():
         app.run(debug=True, port=9900, host="0.0.0.0")
 
