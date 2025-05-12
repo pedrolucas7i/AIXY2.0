@@ -65,7 +65,7 @@ def decide():
         Provide only one word as a response, with no additional explanations.
         """,
         camera.get_frame() if env.CAMERA else None
-    )
+    ).lower()
     
     print(f"Decided: {decision}")
     return decision
@@ -112,10 +112,10 @@ def find(thing):
 
         """,
         camera.get_frame() if CAMERA else None
-    )
+    ).lower()
     
     print(f"Decided: {decision}")
-    return decision.lower()
+    return decision
 
 
 def drive(direction):
