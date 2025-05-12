@@ -64,7 +64,7 @@ def decide():
         Adjust speed to the environment: In open areas, increase speed; in tight spaces, slow down.
         Provide only one word as a response, with no additional explanations.
         """,
-        camera.get_frame() if CAMERA else None
+        camera.get_frame() if env.CAMERAs else None
     )
     
     print(f"Decided: {decision}")
