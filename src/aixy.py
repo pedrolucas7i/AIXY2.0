@@ -240,9 +240,9 @@ def LVMAD_thread(thingToSearch=None, additionalPrompt=None):
                     hardware.drive_left()
             else:
                 if thingToSearch is None:
-                    decision = decide(additionalPrompt).strip().strip("'").lower()
+                    decision = decide().strip().strip("'").lower()
                 else:
-                    decision = find(thingToSearch, additionalPrompt).strip().strip("'").lower()
+                    decision = find(thingToSearch).strip().strip("'").lower()
                 drive(decision)
 
             time.sleep(0.01)
