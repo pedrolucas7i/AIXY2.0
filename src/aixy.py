@@ -216,10 +216,9 @@ def manualControl():
         pygame.quit()
 
 
-import traceback
-
 def LVMAD_thread(thingToSearch=None, additionalPrompt=None):
     import time
+    import traceback
     try:
         if env.MOTORS:
             import hardware
@@ -239,12 +238,12 @@ def LVMAD_thread(thingToSearch=None, additionalPrompt=None):
                 else:
                     hardware.drive_left()
             else:
-                if thingToSearch is None:
+                if thingToSearch == None:
                     decision = decide().strip().strip("'").lower()
                 else:
                     decision = find(thingToSearch).strip().strip("'").lower()
-                drive(decision)
 
+            drive(decision)
             time.sleep(0.01)
 
     except Exception as e:
