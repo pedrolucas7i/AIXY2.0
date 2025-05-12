@@ -36,6 +36,7 @@ decision = None
 def decide():
     """ Decide the action of AIXY based in camera image"""
     global decision
+    import llm
 
     if env.CAMERA_USB:
         from camera import CameraUSB
@@ -73,6 +74,7 @@ def decide():
 def find(thing):
     """ Decide the action of AIXY based in camera image and the thing to search"""
     global decision
+    import llm
 
     if env.CAMERA_USB:
         from camera import CameraUSB
@@ -322,6 +324,8 @@ def SBM_thread():
     import pygame
     import time
 
+    global manual_mode
+
     if env.TTS:
         import speaker
 
@@ -346,7 +350,7 @@ def SBM_thread():
             print(f"Switched to {mode} mode.")
 
             if env.TTS:
-                tts.speak(f"{mode} mode activated.")
+                speaker.speak(f"{mode} mode activated.")
             
             time.sleep(1.5)  # Prevent multiple toggles from one press
         else:
@@ -363,7 +367,8 @@ def SBM_thread():
 
 
 def WCS_thread():
-    from flask import Flask, render_template, Response
+    from flask import Flask, render_template, Response, redirect, url_for
+    import re
     import env
 
     global decision, manual_mode
