@@ -115,7 +115,7 @@ void drive_backward() {
   delay(20);
 }
 
-void drive_left() {
+void drive_right() {
   digitalWrite(PIN_MOTOR1_IN1, LOW);
   digitalWrite(PIN_MOTOR2_IN1, HIGH);
   digitalWrite(PIN_MOTOR1_IN2, HIGH);
@@ -123,7 +123,7 @@ void drive_left() {
   delay(20);
 }
 
-void drive_right() {
+void drive_left() {
   digitalWrite(PIN_MOTOR1_IN1, HIGH);
   digitalWrite(PIN_MOTOR2_IN1, LOW);
   digitalWrite(PIN_MOTOR1_IN2, LOW);
