@@ -69,7 +69,7 @@ class Camera:
 class CameraUSB:
     _instance = None
 
-    def __new__(cls, camera_index=0):
+    def __new__(cls, camera_index=1):
         if cls._instance is None:
             cls._instance = super(CameraUSB, cls).__new__(cls)
             cls._instance._init_camera(camera_index)
