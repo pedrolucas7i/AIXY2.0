@@ -24,16 +24,16 @@ import os
 LVMAD = True
 
 """ Large Languade Model Autonomous Conversations """
-LLMAC = True
+LLMAC = False
 
 """ Obstacle Avoidance """
 OA = False
 
 """ Switch Between Modes """
-SBM = True
+SBM = False
 
 """ Web Camera Stream """
-WCS = True
+WCS = False
 
 """ Text to Speech """
 TTS = True
