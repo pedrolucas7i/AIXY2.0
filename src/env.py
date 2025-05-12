@@ -21,10 +21,10 @@ from dotenv import load_dotenv
 import os
 
 """ Large Vision Model Automonous Drive """
-LVMAD = True
+LVMAD = False
 
 """ Large Languade Model Autonomous Conversations """
-LLMAC = False
+LLMAC = True
 
 """ Obstacle Avoidance """
 OA = False
