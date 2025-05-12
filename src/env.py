@@ -21,19 +21,19 @@ from dotenv import load_dotenv
 import os
 
 """ Large Vision Model Automonous Drive """
-LVMAD = False
+LVMAD = True
 
 """ Large Languade Model Autonomous Conversations """
 LLMAC = True
 
 """ Obstacle Avoidance """
-OA = False
+OA = True
 
 """ Switch Between Modes """
-SBM = False
+SBM = True
 
 """ Web Camera Stream """
-WCS = False
+WCS = True
 
 """ Text to Speech """
 TTS = True
@@ -48,13 +48,13 @@ ONLY_MANUAL_CONTROL = False
 COMMANDS = True
 
 """ Motors """
-MOTORS = False
+MOTORS = True
 
 """ Camera """
-CAMERA = False
+CAMERA = True
 
 """ Camera Connection """
-CAMERA_USB = False
+CAMERA_USB = True
 
 # Load environment variables from the .env file
 load_dotenv()

@@ -24,7 +24,7 @@ fi
 sudo apt update
 sudo apt install libportaudio2 libportaudiocpp0 portaudio19-dev
 sudo apt install python3-pip python3-pygame python3-flask
-sudo pip3 install pyserial opencv-python --break-system-packages
+sudo pip3 install pyserial opencv-python sounddevice gtts playsound --break-system-packages
 
 
 echo """
