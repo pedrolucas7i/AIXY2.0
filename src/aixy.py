@@ -132,8 +132,7 @@ def drive(direction):
         hardware.drive_right()
     elif 'finded' in direction:
         hardware.clamp_catch()
-    
-    sleep(0.35)
+    hardware.drive_release()
 
 
 def manualControl():
