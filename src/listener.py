@@ -109,16 +109,23 @@ def transcribe_speech():
 
         print("📥 Response received.")
 
+        # Logar a resposta bruta
+        print(f"⚠️ Raw Response: {response.text}")  # Adicionando log para visualizar a resposta
+
         if response.status_code == 200:
             text = response.json().get("text", "").strip()
+            print(f"⚠️ Response Headers: {response.headers}")
             print(f"📝 Transcribed Text: {text}")
             return text
         else:
             print(f"❌ Server error {response.status_code}: {response.text}")
+            print(f"⚠️ Response Headers: {response.headers}")
+
             return ""
     except Exception as e:
         print(f"⚠️ Exception during request: {e}")
         return ""
+
 
 
 if __name__ == "__main__":

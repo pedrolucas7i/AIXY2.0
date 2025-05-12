@@ -1,0 +1,92 @@
+import env
+import speaker
+
+def drive_forward():
+    import hardware
+    speaker.speak(env.RESPONSES[11])
+    hardware.drive_forward()
+
+def turn_left():
+    import hardware
+    speaker.speak(env.RESPONSES[12])
+    hardware.drive_left()
+
+def turn_right():
+    import hardware
+    speaker.speak(env.RESPONSES[13])
+    hardware.drive_right()
+
+def drive_backward():
+    import hardware
+    speaker.speak(env.RESPONSES[14])
+    hardware.drive_backward()
+
+def stop_now():
+    import hardware
+    speaker.speak(env.RESPONSES[15])
+    hardware.drive_stop()
+
+def light_on():
+    import hardware
+    hardware.ligthON()
+    speaker.speak(env.RESPONSES[9])
+
+def light_off():
+    import hardware
+    hardware.ligthOFF()
+    speaker.speak(env.RESPONSES[10])
+
+def flash_light():
+    import hardware
+    hardware.flasklight()
+    speaker.speak(env.RESPONSES[5])
+
+def catch_object():
+    import Clamp
+    speaker.speak(env.RESPONSES[1])
+    Clamp.up()
+
+def release_object():
+    import Clamp
+    speaker.speak(env.RESPONSES[2])
+    Clamp.down()
+
+def getDistance():
+    import hardware
+    speaker.speak(f"{hardware.get_distance()} {env.RESPONSES[0]}")
+
+def executeCommand(stt_data):
+    def say_message():
+        message = stt_data.split("say", 1)[-1].strip()
+        if message:
+            speaker.speak(message)
+        else:
+            speaker.speak(env.RESPONSES[4])
+
+    commands_actions = {
+        'get ultrasonic data': lambda: speaker.speak(getDistance()),
+        'analyze object': lambda: speaker.speak(env.RESPONSES[3]),
+        'say': say_message,
+        'flash lights': lambda: flash_light,
+        'listen for command': lambda: speaker.speak(env.RESPONSES[6]),
+        'report status': lambda: speaker.speak(env.RESPONSES[7]),
+        'reboot system': lambda: (System.reboot(), speaker.speak(env.RESPONSES[8])),
+        'turn the light on': light_on,
+        'turn the light off': light_off,
+    }
+
+    if env.MOTORS:
+        commands_actions.update({
+            'catch the object': catch_object,
+            'release object': release_object,
+            'drive forward': drive_forward,
+            'turn left': turn_left,
+            'turn right': turn_right,
+            'drive backward': drive_backward,
+            'stop now': stop_now,
+        })
+
+    for command, action in commands_actions.items():
+        if command in stt_data:
+            action()
+            break

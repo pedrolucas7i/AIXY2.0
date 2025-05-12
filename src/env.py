@@ -24,7 +24,7 @@ import os
 LVMAD = False
 
 """ Large Languade Model Autonomous Conversations """
-LLMAC = False
+LLMAC = True
 
 """ Obstacle Avoidance """
 OA = False
@@ -33,28 +33,28 @@ OA = False
 SBM = False
 
 """ Web Camera Stream """
-WCS = True
+WCS = False
 
 """ Text to Speech """
-TTS = False
+TTS = True
 
 """ Speech to Text """
-STT = False
+STT = True
 
 """ ONLY MANUAL CONTROL"""
-ONLY_MANUAL_CONTROL = True
+ONLY_MANUAL_CONTROL = False
 
 """ AIXY COMMANDS """
-COMMANDS = False
+COMMANDS = True
 
 """ Motors """
-MOTORS = True
+MOTORS = False
 
 """ Camera """
 CAMERA = False
 
 """ Camera Connection """
-CAMERA_USB = True
+CAMERA_USB = False
 
 # Load environment variables from the .env file
 load_dotenv()
@@ -73,23 +73,51 @@ PURPOSE = (lambda f: f.read())(open("purpose.info", "r", encoding="utf-8"))
 
 COMMANDS = [
     'get ultrasonic data',
-    'drive forward',
-    'turn left',
-    'turn right',
-    'drive backward',
-    'catch the object',
-    'stop now',
+    'analyze object',
+    'say',
+    'flash lights',
+    'listen for command',
+    'report status',
+    'reboot system',
+    'turn the light on',
+    'turn the light off'
 ]
+
+if MOTORS:
+    COMMANDS += [
+        'catch the object',
+        'release object',
+        'drive forward',
+        'turn left',
+        'turn right',
+        'drive backward',
+        'stop now',
+    ]
 
 RESPONSES = [
     'centimeters to the obstacle',
-    'Driving forward',
-    'turning left',
-    'turning right',
-    'driving backward',
-    'catching the object',
-    'stoped for 40 seconds',
+    'analyzing object...',
+    'saying message',
+    'flashing lights',
+    'listening...',
+    'status report: all systems nominal',
+    'rebooting system...',
+    'light turned on',
+    'light turned off'
 ]
+
+if MOTORS:
+    RESPONSES += [
+        'catching the object',
+        'releasing the object',
+        'Driving forward',
+        'turning left',
+        'turning right',
+        'driving backward',
+        'stopped for 30 seconds',
+    ]
+
+
 
 """
 movements = {

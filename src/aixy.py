@@ -289,30 +289,29 @@ def LLMAC_thread():
     import env
     import listener
     import speaker
-
-    try:
-        stt_data_raw = ' '.join(listener.transcribe_speech())
-        if not stt_data_raw:
-            print("No speech recognized.")
-            return
-
-        else:
-
-            cleaned_text = clean_text(stt_data_raw)
-            print(f"> User said: {cleaned_text}")
-
-            if cleaned_text in env.COMMANDS:
-                commands.executeCommand(cleaned_text)
+    import commands
+    while True:
+        try:
+            stt_data_raw = ' '.join(listener.transcribe_speech())
+            if not stt_data_raw:
+                print("No speech recognized.")
                 return
 
-            response = generate_response(cleaned_text)
-            if response:
-                speaker.speak(response)
             else:
-                print("No response generated.")
-    
-    except Exception as e:
-        print(f"Unexpected error: {e}")
+
+                cleaned_text = clean_text(stt_data_raw)
+                print(f"> User said: {cleaned_text}")
+
+                commands.executeCommand(cleaned_text)
+
+                response = generate_response(cleaned_text)
+                if response:
+                    speaker.speak(response)
+                else:
+                    print("No response generated.")
+        
+        except Exception as e:
+            print(f"Unexpected error: {e}")
 
 
 """
@@ -460,7 +459,7 @@ def main():
 
     if env.LLMAC:
         print("🟢 Starting Large Languade Model Autonomous Conversation thread...")
-        LLMAC_PROCESSOR = threading.Thread(target=LLMAC_thread, daemon=True)
+        LLMAC_PROCESSOR = threading.Thread(target=LLMAC_thread, daemon=False)
         LLMAC_PROCESSOR.start()
     
 

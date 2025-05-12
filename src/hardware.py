@@ -100,6 +100,7 @@ def drive_release():
 
 def drive_stop():
     print(send_command("drive_stop"))
+    time.sleep(30)
 
 
 # === ULTRASONIC SENSOR ===
