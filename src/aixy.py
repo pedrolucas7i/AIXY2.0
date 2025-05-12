@@ -115,7 +115,7 @@ def find(thing):
     )
     
     print(f"Decided: {decision}")
-    return decision
+    return decision.lower()
 
 
 def drive(direction):
