@@ -217,42 +217,33 @@ def manualControl():
 def LVMAD_thread(thingToSearch=None, additionalPrompt=None):
     import time
     
+    # If MOTORS has set as true, use motors, if not, just print the decision without execute the action
+    if env.MOTORS:
+        import hardware
+    
     while True:
+        if manual_mode:
+            manualControl()
+            continue  # Skip AI processing while in manual mode
 
-        # If MOTORS has set as true, use motors, if not, just print the decision without execute the action
-        if env.MOTORS:
-            import hardware
-
-            if manual_mode:
-                manualControl()
-                continue  # Skip AI processing while in manual mode
-
-            # If OA is defined as true, and the distance to the ultrassonic sensor is more than 8cm, AIXY think and execute the decision, if not, avoid Obstacle, if OA is not set as true (false) just think and execute the action
-            if env.OA:
-                if hardware.get_distance() > 8:
-                    if thingToSearch == None:
-                        decision = decide(additionalPrompt).strip().strip("'").lower()
-                    else:
-                        decision = find(thing, additionalPrompt).strip().strip("'").lower()
-                    
-                    drive(decision)
-                else:
-                    hardware.drive_left()
-            else:
+        # If OA is defined as true, and the distance to the ultrassonic sensor is more than 8cm, AIXY think and execute the decision, if not, avoid Obstacle, if OA is not set as true (false) just think and execute the action
+        if env.OA:
+            if hardware.get_distance() > 8:
                 if thingToSearch == None:
                     decision = decide(additionalPrompt).strip().strip("'").lower()
                 else:
                     decision = find(thing, additionalPrompt).strip().strip("'").lower()
                 
                 drive(decision)
+            else:
+                hardware.drive_left()
         else:
             if thingToSearch == None:
                 decision = decide(additionalPrompt).strip().strip("'").lower()
             else:
                 decision = find(thing, additionalPrompt).strip().strip("'").lower()
-
-        time.sleep(0.7)
-
+            
+            drive(decision)
 
 """
 ===========================================================================================================================================
@@ -325,6 +316,7 @@ def LLMAC_thread():
 
 def SBM_thread():
     import pygame
+    import time
 
     if env.TTS:
         import speaker
@@ -453,7 +445,7 @@ def main():
 
         if env.LVMAD:
             print("🟢 Starting Large Vision Model Autonomous Drive thread...")
-            LVMAD_PROCESSOR = threading.Thread(target=LVMAD_thread, args=(thingToSearch, additionalPrompt), daemon=True)
+            LVMAD_PROCESSOR = threading.Thread(target=LVMAD_thread, args=(thingToSearch, additionalPrompt), daemon=False)
             LVMAD_PROCESSOR.start()
 
 
