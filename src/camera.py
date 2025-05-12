@@ -76,7 +76,7 @@ class CameraUSB:
         return cls._instance
 
     def _init_camera(self, camera_index):
-        self.cap = cv2.VideoCapture(camera_index, cv2.CAP_V4L2)
+        self.cap = cv2.VideoCapture(camera_index)
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 224)
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 224)
 
@@ -117,6 +117,6 @@ class CameraUSB:
             time.sleep(0.1)
 
     def __del__(self):
+        self.running = False
         if hasattr(self, 'cap') and self.cap.isOpened():
-            self.running = False
             self.cap.release()
