@@ -214,36 +214,40 @@ def manualControl():
         pygame.quit()
 
 
+import traceback
+
 def LVMAD_thread(thingToSearch=None, additionalPrompt=None):
     import time
-    
-    # If MOTORS has set as true, use motors, if not, just print the decision without execute the action
-    if env.MOTORS:
-        import hardware
-    
-    while True:
-        if manual_mode:
-            manualControl()
-            continue  # Skip AI processing while in manual mode
+    try:
+        if env.MOTORS:
+            import hardware
 
-        # If OA is defined as true, and the distance to the ultrassonic sensor is more than 8cm, AIXY think and execute the decision, if not, avoid Obstacle, if OA is not set as true (false) just think and execute the action
-        if env.OA:
-            if hardware.get_distance() > 8:
-                if thingToSearch == None:
+        while True:
+            if manual_mode:
+                manualControl()
+                continue
+
+            if env.OA:
+                if hardware.get_distance() > 8:
+                    if thingToSearch is None:
+                        decision = decide(additionalPrompt).strip().strip("'").lower()
+                    else:
+                        decision = find(thingToSearch, additionalPrompt).strip().strip("'").lower()
+                    drive(decision)
+                else:
+                    hardware.drive_left()
+            else:
+                if thingToSearch is None:
                     decision = decide(additionalPrompt).strip().strip("'").lower()
                 else:
-                    decision = find(thing, additionalPrompt).strip().strip("'").lower()
-                
+                    decision = find(thingToSearch, additionalPrompt).strip().strip("'").lower()
                 drive(decision)
-            else:
-                hardware.drive_left()
-        else:
-            if thingToSearch == None:
-                decision = decide(additionalPrompt).strip().strip("'").lower()
-            else:
-                decision = find(thing, additionalPrompt).strip().strip("'").lower()
-            
-            drive(decision)
+
+            time.sleep(0.01)
+
+    except Exception as e:
+        print("Erro na thread LVMAD_thread:")
+        traceback.print_exc()   
 
 """
 ===========================================================================================================================================
