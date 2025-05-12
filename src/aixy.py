@@ -232,9 +232,9 @@ def LVMAD_thread(thingToSearch=None, additionalPrompt=None):
             if env.OA:
                 if hardware.get_distance() > 8:
                     if thingToSearch is None:
-                        decision = decide(additionalPrompt).strip().strip("'").lower()
+                        decision = decide().strip().strip("'").lower()
                     else:
-                        decision = find(thingToSearch, additionalPrompt).strip().strip("'").lower()
+                        decision = find(thingToSearch).strip().strip("'").lower()
                     drive(decision)
                 else:
                     hardware.drive_left()
