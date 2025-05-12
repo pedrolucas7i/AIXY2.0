@@ -27,7 +27,7 @@ LVMAD = True
 LLMAC = True
 
 """ Obstacle Avoidance """
-OA = True
+OA = False
 
 """ Switch Between Modes """
 SBM = True
