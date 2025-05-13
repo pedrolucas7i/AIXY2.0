@@ -26,11 +26,6 @@ SCRIPT_DIR=$(dirname "$(realpath "$0")")
 if [ ! -d "/opt/AiXY2.0" ]; then
   echo "[+] Directory /opt/AiXY2.0 not found. Installing files..."
   mkdir -p /opt/AiXY2.0
-  # Define log file path
-  LOG_FILE="/opt/AiXY2.0/logs/run.log"
-
-  # Ensure the logs directory exists
-  mkdir -p /opt/AiXY2.0/logs
   cp -r "$SCRIPT_DIR/../." /opt/AiXY2.0/
 else
   echo "[✓] /opt/AiXY2.0 already exists. Updating code..."
@@ -54,4 +49,4 @@ cd /opt/AiXY2.0/src/ || {
 
 # Run Python script and log its output
 echo "[+] Starting the Python application..."
-exec python3 main.py >> "$LOG_FILE" 2>&1
+exec python3 main.py
