@@ -1,11 +1,5 @@
 #!/bin/bash
 
-# Define log file path
-LOG_FILE="/opt/AiXY2.0/logs/run.log"
-
-# Ensure the logs directory exists
-mkdir -p /opt/AiXY2.0/logs
-
 echo """
 ===========================================================
         _      ___  __  __ __   __  ____         ___  
@@ -32,6 +26,11 @@ SCRIPT_DIR=$(dirname "$(realpath "$0")")
 if [ ! -d "/opt/AiXY2.0" ]; then
   echo "[+] Directory /opt/AiXY2.0 not found. Installing files..."
   mkdir -p /opt/AiXY2.0
+  # Define log file path
+  LOG_FILE="/opt/AiXY2.0/logs/run.log"
+
+  # Ensure the logs directory exists
+  mkdir -p /opt/AiXY2.0/logs
   cp -r "$SCRIPT_DIR/." /opt/AiXY2.0/
 else
   echo "[✓] /opt/AiXY2.0 already exists. Updating code..."
