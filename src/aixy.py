@@ -260,6 +260,7 @@ def LVMAD_thread(thingToSearch=None, additionalPrompt=None):
 
 def generate_response(user_text):
     import env
+    import llm
     prompt = (
         "You are AIXY an AI assistant that responds clearly and efficiently.\n"
         f"- Purpose: {env.PURPOSE}\n"
@@ -272,6 +273,7 @@ def generate_response(user_text):
 
 
 def clean_text(text):
+    import re
     text = re.sub(r'[.,!?]', '', text)
     text = text.strip().lower()
     text = re.sub(r'\s{2,}', ' ||| ', text)
@@ -290,8 +292,6 @@ def LLMAC_thread():
             stt_data_raw = ' '.join(listener.transcribe_speech())
             if not stt_data_raw:
                 print("No speech recognized.")
-                return
-
             else:
 
                 cleaned_text = clean_text(stt_data_raw)

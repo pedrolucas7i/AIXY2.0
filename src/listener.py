@@ -100,7 +100,7 @@ def transcribe_speech():
         wf.setframerate(SAMPLE_RATE)
         wf.writeframes(audio.tobytes())
 
-    print(f"📤 Sending audio to server at {SERVER_URL}...")
+    print(f"📤 Sending audio to server...")
 
     try:
         with open(path, "rb") as f:
@@ -114,12 +114,10 @@ def transcribe_speech():
 
         if response.status_code == 200:
             text = response.json().get("text", "").strip()
-            print(f"⚠️ Response Headers: {response.headers}")
             print(f"📝 Transcribed Text: {text}")
             return text
         else:
             print(f"❌ Server error {response.status_code}: {response.text}")
-            print(f"⚠️ Response Headers: {response.headers}")
 
             return ""
     except Exception as e:
