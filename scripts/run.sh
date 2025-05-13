@@ -6,9 +6,6 @@ LOG_FILE="/opt/AiXY2.0/logs/run.log"
 # Ensure the logs directory exists
 mkdir -p /opt/AiXY2.0/logs
 
-# Redirect stdout and stderr to the log file
-exec > "$LOG_FILE" 2>&1
-
 echo """
 ===========================================================
         _      ___  __  __ __   __  ____         ___  
