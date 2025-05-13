@@ -100,7 +100,7 @@ def transcribe_speech():
         wf.setframerate(SAMPLE_RATE)
         wf.writeframes(audio.tobytes())
 
-    print(f"📤 Sending audio to server...")
+    print("📤 Sending audio to server...")
 
     try:
         with open(path, "rb") as f:

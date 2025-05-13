@@ -8,11 +8,10 @@ echo """
      / ___ \   | |   /  \    | |    / __/   _  | |_| |
     /_/   \_\ |___| /_/\_\   |_|   |_____| (_)  \___/ 
 
-              PROJECT DEPENDENCIES INSTALLATION
+                PROGRAM BY PEDRO LUCAS
 
 ===========================================================
 """
-
 
 # Must be run as root
 if [ "$EUID" -ne 0 ]; then
@@ -20,19 +19,17 @@ if [ "$EUID" -ne 0 ]; then
   exit 1
 fi
 
+git pull
 
-sudo apt update
-sudo apt install libportaudio2 libportaudiocpp0 portaudio19-dev
-sudo apt install git
-sudo apt install python3-pip python3-pygame python3-flask
-sudo pip3 install pyserial opencv-python sounddevice gtts playsound ollama --break-system-packages
-
+sudo mkdir /opt/AiXY2.0/
+sudo cp -r ../* /opt/AiXY2.0/
 
 echo """
 ===========================================================
-            Installation completed successfully!
+
+                 RUNNING AiXY2.0 PROGRAM
+
 ===========================================================
 """
-
-echo "✅ All setup steps completed!"
-echo "🔁 Please reboot or log out and back in to apply all permission changes."
+cd /opt/AiXY2.0/src/
+sudo python3 /opt/AiXY2.0/src/main.py
