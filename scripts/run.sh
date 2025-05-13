@@ -31,7 +31,7 @@ if [ ! -d "/opt/AiXY2.0" ]; then
 
   # Ensure the logs directory exists
   mkdir -p /opt/AiXY2.0/logs
-  cp -r "$SCRIPT_DIR/." /opt/AiXY2.0/
+  cp -r "$SCRIPT_DIR/../." /opt/AiXY2.0/
 else
   echo "[✓] /opt/AiXY2.0 already exists. Updating code..."
   cd /opt/AiXY2.0 || {
