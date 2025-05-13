@@ -1,0 +1,16 @@
+[Unit]
+Description=AiXY 2.0 Service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/opt/AiXY2.0/scripts/run.sh
+Restart=on-failure
+RestartSec=5
+User=root
+StandardOutput=append:/opt/AiXY2.0/logs/run.log
+StandardError=append:/opt/AiXY2.0/logs/run.log
+
+[Install]
+WantedBy=multi-user.target
