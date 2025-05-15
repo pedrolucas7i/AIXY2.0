@@ -42,8 +42,10 @@ echo """
 ===========================================================
 """
 
-# Switch to normal user (whoever called sudo)
+# Detect original user and their environment variables
 ORIGINAL_USER=$(logname)
+USER_ID=$(id -u "$ORIGINAL_USER")
+XDG_RUNTIME_DIR="/run/user/$USER_ID"
 
-# Run the app as the original user with the correct environment
-sudo -u "$ORIGINAL_USER" --preserve-env=XDG_RUNTIME_DIR bash -c 'cd /opt/AiXY2.0/src && python3 main.py'
+# Run main.py as the original user, preserving environment
+sudo -u "$ORIGINAL_USER" env XDG_RUNTIME_DIR="$XDG_RUNTIME_DIR" bash -c 'cd /opt/AiXY2.0/src && python3 main.py'
