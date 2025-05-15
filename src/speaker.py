@@ -18,6 +18,8 @@
 
 from gtts import gTTS
 from playsound import playsound
+import tempfile
+import os
 
 # Define the speech function that uses gTTS
 def speak(message):
@@ -26,13 +28,20 @@ def speak(message):
     try:
         print("Converting message to speech\n")
         
-        # Use gTTS to convert the message to speech (Google TTS API)
+        # Create a temporary file for the speech audio
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_file:
+            temp_path = tmp_file.name
+
+        # Save TTS output to temp file
         tts = gTTS(text=message, lang='en', slow=False)
-        tts.save("message.mp3")  # Save the speech to a file
+        tts.save(temp_path)
         
-        # Play the saved speech file
-        playsound('message.mp3')
+        # Play the temporary audio file
+        playsound(temp_path)
         
+        # Clean up temporary file after playback
+        os.remove(temp_path)
+
         print("Speech playback completed\n")
     except Exception as e:
         print(f"An error occurred during speech playback: {str(e)}\n")
