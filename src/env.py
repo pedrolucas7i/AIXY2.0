@@ -77,7 +77,6 @@ COMMANDS = [
     'say',
     'flash lights',
     'listen for command',
-    'report status',
     'reboot system',
     'turn the light on',
     'turn the light off'
@@ -100,7 +99,6 @@ RESPONSES = [
     'saying message',
     'flashing lights',
     'listening...',
-    'status report: all systems nominal',
     'rebooting system...',
     'light turned on',
     'light turned off'

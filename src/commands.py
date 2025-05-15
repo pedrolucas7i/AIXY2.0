@@ -1,5 +1,6 @@
 import env
 import speaker
+import subprocess
 
 def drive_forward():
     import hardware
@@ -55,6 +56,9 @@ def getDistance():
     import hardware
     speaker.speak(f"{hardware.get_distance()} {env.RESPONSES[0]}")
 
+def reboot():
+    subprocess.run("reboot")
+
 def executeCommand(stt_data):
     def say_message():
         message = stt_data.split("say", 1)[-1].strip()
@@ -64,13 +68,12 @@ def executeCommand(stt_data):
             speaker.speak(env.RESPONSES[4])
 
     commands_actions = {
-        'get ultrasonic data': lambda: speaker.speak(getDistance()),
+        'get ultrasonic data': lambda: getDistance,
         'analyze object': lambda: speaker.speak(env.RESPONSES[3]),
         'say': say_message,
         'flash lights': lambda: flash_light,
         'listen for command': lambda: speaker.speak(env.RESPONSES[6]),
-        'report status': lambda: speaker.speak(env.RESPONSES[7]),
-        'reboot system': lambda: (System.reboot(), speaker.speak(env.RESPONSES[8])),
+        'reboot system': lambda: (reboot(), speaker.speak(env.RESPONSES[8])),
         'turn the light on': light_on,
         'turn the light off': light_off,
     }
@@ -87,6 +90,6 @@ def executeCommand(stt_data):
         })
 
     for command, action in commands_actions.items():
-        if command in stt_data:
+        if command in stt_data.lower():
             action()
             break

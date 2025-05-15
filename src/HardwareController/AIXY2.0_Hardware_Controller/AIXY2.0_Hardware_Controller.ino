@@ -90,6 +90,15 @@ void loop() {
     } else if (command == "clamp_release") {
       clamp_release();
       Serial.println("OK: clamp_release");
+    } else if (command == "flash_light") {
+      flash_light();
+      Serial.println("OK: flashed_light");
+    } else if (command == "light_on") {
+      light_on();
+      Serial.println("OK: light_on");
+    } else if (command == "light_off") {
+      light_off();
+      Serial.println("OK: light_off");
     } else {
       Serial.println("COMMAND NOT FOUND!");
     }
@@ -184,3 +193,19 @@ float ultrassonic_data() {
   return sonar.ping_cm();                             // Return ping distance in cm
 }
   
+
+// === LIGHT COMMANDS ===
+
+void flash() {
+  digitalWrite(13, HIGH);
+  delay(600);
+  digitalWrite(13, LOW);
+}
+
+void light_on() {
+  digitalWrite(13, HIGH);
+}
+
+void light_off() {
+  digitalWrite(13, LOW);
+}
