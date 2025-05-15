@@ -47,5 +47,8 @@ ORIGINAL_USER=$(logname)
 USER_ID=$(id -u "$ORIGINAL_USER")
 XDG_RUNTIME_DIR="/run/user/$USER_ID"
 
+sudo setfacl -m u:root:rwX /run/user/1000/pipewire-0
+sudo setfacl -m u:root:rwX /run/user/1000/pulse/native
+
 # Run main.py as the original user, preserving environment
 sudo -u "$ORIGINAL_USER" env XDG_RUNTIME_DIR="$XDG_RUNTIME_DIR" bash -c 'cd /opt/AiXY2.0/src && python3 main.py'
