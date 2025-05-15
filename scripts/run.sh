@@ -42,11 +42,8 @@ echo """
 ===========================================================
 """
 
-cd /opt/AiXY2.0/src/ || {
-  echo "❌ Error: /opt/AiXY2.0/src/ directory not found!"
-  exit 1
-}
+# Switch to normal user (whoever called sudo)
+ORIGINAL_USER=$(logname)
 
-# Run Python script and log its output
-echo "[+] Starting the Python application..."
-exec python3 main.py
+# Run the app as the original user with the correct environment
+sudo -u "$ORIGINAL_USER" --preserve-env=XDG_RUNTIME_DIR bash -c 'cd /opt/AiXY2.0/src && python3 main.py'
