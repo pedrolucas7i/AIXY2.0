@@ -25,7 +25,7 @@ sudo apt update
 sudo apt install libportaudio2 libportaudiocpp0 portaudio19-dev 
 sudo apt install git mpg123
 sudo apt install -y pulseaudio pulseaudio-module-bluetooth pavucontrol bluez blueman
-sudo apt install python3-pip python3-pygame python3-flask
+sudo apt install python3-pip python3-pygame python3-flask       
 sudo pip3 install pyserial opencv-python sounddevice gtts playsound ollama --break-system-packages
 
 
