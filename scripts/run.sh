@@ -47,8 +47,13 @@ ORIGINAL_USER=$(logname)
 USER_ID=$(id -u "$ORIGINAL_USER")
 XDG_RUNTIME_DIR="/run/user/$USER_ID"
 
-sudo setfacl -m u:root:rwX /run/user/1000/pipewire-0
-sudo setfacl -m u:root:rwX /run/user/1000/pulse/native
+# Give root permission to access user's PipeWire and PulseAudio sockets
+setfacl -m u:root:rwX "$XDG_RUNTIME_DIR/pipewire-0"
+setfacl -m u:root:rwX "$XDG_RUNTIME_DIR/pulse/native"
 
-# Run main.py as the original user, preserving environment
-sudo -u "$ORIGINAL_USER" env XDG_RUNTIME_DIR="$XDG_RUNTIME_DIR" bash -c 'cd /opt/AiXY2.0/src && python3 main.py'
+# Run main.py as root but with user’s audio environment
+export XDG_RUNTIME_DIR
+export PULSE_SERVER="unix:$XDG_RUNTIME_DIR/pulse/native"
+
+cd /opt/AiXY2.0/src || exit 1
+python3 main.py
