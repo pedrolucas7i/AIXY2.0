@@ -45,6 +45,7 @@ void setup() {
   pinMode(PIN_MOTOR1_IN2, OUTPUT);
   pinMode(PIN_MOTOR2_IN1, OUTPUT);
   pinMode(PIN_MOTOR2_IN2, OUTPUT);
+  pinMode(13, OUTPUT);
   arm.attach(PIN_ARM);                                // Defining the PIN of ARM SERVO
   clamp.attach(PIN_CLAMP);                            // Defining the PIN of CLAMP SERVO
   Serial.begin(9600);                                 // Start Serial comunication in 9600 bauds
@@ -91,7 +92,7 @@ void loop() {
       clamp_release();
       Serial.println("OK: clamp_release");
     } else if (command == "flash_light") {
-      flash_light();
+      flash();
       Serial.println("OK: flashed_light");
     } else if (command == "light_on") {
       light_on();
