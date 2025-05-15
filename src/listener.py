@@ -26,7 +26,7 @@ import time
 import env
 
 # Audio configuration
-SAMPLE_RATE = 16000
+SAMPLE_RATE = 44100
 CHANNELS = 1
 BLOCK_SIZE = 1024
 SILENCE_THRESHOLD = 500  # Lower threshold for silence detection
