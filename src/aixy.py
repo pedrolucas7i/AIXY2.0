@@ -262,7 +262,7 @@ def generate_response(user_text):
     import env
     import llm
     prompt = (
-        "You are AIXY an AI assistant that responds clearly and efficiently.\n"
+        "You are AIXY an AI assistant created by Pedro Ribeiro Lucas developer that responds clearly and efficiently.\n"
         f"- Purpose: {env.PURPOSE}\n"
         f"- Personality: {env.PERSONALITY}\n"
         f"- Model: {env.OLLAMA_LANGUAGE_MODEL}\n"

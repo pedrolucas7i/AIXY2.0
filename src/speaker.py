@@ -24,7 +24,6 @@ import os
 # Define the speech function that uses gTTS
 def speak(message):
     print(f"Converting message to speech: {message}\n")
-    print(f'TTS: {message.strip()}\n')
     try:
         print("Converting message to speech\n")
         

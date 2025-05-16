@@ -41,12 +41,13 @@ def detect_silence(audio):
     return volume < SILENCE_THRESHOLD
 
 def record_until_silence():
-    """Records audio until the user stops speaking for a few seconds."""
+    """Records audio until the user stops speaking for a few seconds, only if speech is detected."""
     buffer = []
     silence_start = None
+    speech_detected = False
 
     def callback(indata, frames, time_info, status):
-        nonlocal buffer, silence_start
+        nonlocal buffer, silence_start, speech_detected
         if status:
             print(status)
 
@@ -54,28 +55,32 @@ def record_until_silence():
         buffer.append(samples)
 
         volume = np.abs(samples).mean()
-        # print(f"Volume: {volume}")  # Optional debug
 
-        if detect_silence(samples):
-            if silence_start is None:
-                silence_start = time.time()
-            elif time.time() - silence_start > SILENCE_TIME:
-                print("Silence detected for enough time. Stopping recording.")
-                raise sd.CallbackStop
+        if volume >= SILENCE_THRESHOLD:
+            speech_detected = True
+            silence_start = None  # reset silence timer
         else:
-            silence_start = None
+            if speech_detected:
+                if silence_start is None:
+                    silence_start = time.time()
+                elif time.time() - silence_start > SILENCE_TIME:
+                    print("Silence detected after speech. Stopping recording.")
+                    raise sd.CallbackStop
 
-    # Use stream context, but no sleep
     with sd.InputStream(samplerate=SAMPLE_RATE, channels=CHANNELS, dtype=np.int16,
                         blocksize=BLOCK_SIZE, callback=callback) as stream:
         print("Listening...")
         try:
             while stream.active:
-                time.sleep(0.1)  # Just yield to avoid busy-waiting
+                time.sleep(0.1)
         except KeyboardInterrupt:
             print("Interrupted by user.")
         except sd.CallbackStop:
-            pass  # Expected when silence is detected
+            pass
+
+    if not speech_detected:
+        print("⚠️ No speech detected during the session.")
+        return np.array([], dtype=np.int16)
 
     return np.concatenate(buffer)
 
@@ -115,7 +120,10 @@ def transcribe_speech():
         if response.status_code == 200:
             text = response.json().get("text", "").strip()
             print(f"📝 Transcribed Text: {text}")
-            return text
+            if ((text != "you") and (text != "Thanks for watching!") and (text != "Thank you.")):
+                return text
+            else:
+                return ""
         else:
             print(f"❌ Server error {response.status_code}: {response.text}")
 
