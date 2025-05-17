@@ -120,10 +120,10 @@ def transcribe_speech():
         if response.status_code == 200:
             text = response.json().get("text", "").strip()
             print(f"📝 Transcribed Text: {text}")
-            if ((text != "you") and (text != "Thanks for watching!") and (text != "Thank you.")):
+            if ((text != "you") and (text != "Thanks for watching!") and (text != "Thank you.") and (text != "Thank you for watching!")):
                 return text
             else:
-                return ""
+                return None
         else:
             print(f"❌ Server error {response.status_code}: {response.text}")
 

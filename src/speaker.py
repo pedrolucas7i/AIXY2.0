@@ -20,6 +20,7 @@ from gtts import gTTS
 from playsound import playsound
 import tempfile
 import os
+import db
 
 # Define the speech function that uses gTTS
 def speak(message):
@@ -32,9 +33,9 @@ def speak(message):
             temp_path = tmp_file.name
 
         # Save TTS output to temp file
-        tts = gTTS(text=message, lang='en', slow=False)
+        tts = gTTS(text=message, lang='pt', slow=False)
         tts.save(temp_path)
-        
+
         # Play the temporary audio file
         playsound(temp_path)
         
