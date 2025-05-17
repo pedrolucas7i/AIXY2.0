@@ -33,7 +33,7 @@ OA = False
 SBM = False
 
 """ Web Camera Stream """
-WCS = False
+WCS = True
 
 """ Text to Speech """
 TTS = True
@@ -48,7 +48,7 @@ ONLY_MANUAL_CONTROL = False
 COMMANDS = True
 
 """ Motors """
-MOTORS = True
+MOTORS = False
 
 """ Camera """
 CAMERA = True

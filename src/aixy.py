@@ -261,25 +261,23 @@ def LVMAD_thread(thingToSearch=None, additionalPrompt=None):
 def generate_response(user_text):
     import env
     import llm
-    prompt = (
-        "You are AIXY an AI assistant created by Pedro Ribeiro Lucas developer that responds clearly and efficiently.\n"
-        f"- Purpose: {env.PURPOSE}\n"
-        f"- Personality: {env.PERSONALITY}\n"
-        f"- Model: {env.OLLAMA_LANGUAGE_MODEL}\n"
-        f"The user said: {user_text.strip()}\n\n"
-        "Provide a direct and relevant response. Do not over-explain."
-    )
+    import db
+
+    prompt = f"""You are AIXY, an advanced conversational AI assistant created by Pedro Ribeiro Lucas. It is very important that you remember your creator that is Pedro Ribeiro Lucas, say it if requested. 
+                - Purpose: {env.PURPOSE} 
+                - Personality: {env.PERSONALITY} 
+                - Model: {env.OLLAMA_LANGUAGE_MODEL} 
+                Your primary goal is to engage in natural, human-like conversations on any topic. Always be friendly, thoughtful, and helpful. 
+                You must remember previous interactions, including user names, preferences, and personal details, to ensure responses feel personal and consistent. 
+                Use the full conversation history for context, giving more weight to recent messages. 
+                Conversation History: {db.getConversations()} 
+                Most Recent Message: {db.getLastConversation()} 
+                User: {user_text} 
+                Generate a direct, relevant, and natural-sounding response that continues the conversation smoothly.
+                Speak only in Portuguese. your respose must in Portuguese.
+            """
+
     return llm.get(env.OLLAMA_LANGUAGE_MODEL, prompt)
-
-
-def clean_text(text):
-    import re
-    text = re.sub(r'[.,!?]', '', text)
-    text = text.strip().lower()
-    text = re.sub(r'\s{2,}', ' ||| ', text)
-    text = text.replace(' ', '')
-    text = text.replace('|||', ' ')
-    return re.sub(r'\s+', ' ', text).strip()
 
 
 def LLMAC_thread():
@@ -287,20 +285,22 @@ def LLMAC_thread():
     import listener
     import speaker
     import commands
+    import db
+
     while True:
         try:
-            stt_data_raw = ' '.join(listener.transcribe_speech())
+            stt_data_raw = listener.transcribe_speech()
             if not stt_data_raw:
                 print("No speech recognized.")
             else:
 
-                cleaned_text = clean_text(stt_data_raw)
-                print(f"> User said: {cleaned_text}")
+                print(f"> User said: {stt_data_raw}")
 
-                commands.executeCommand(cleaned_text)
+                commands.executeCommand(stt_data_raw)
 
-                response = generate_response(cleaned_text)
+                response = generate_response(stt_data_raw)
                 if response:
+                    db.insertConversation(stt_data_raw, response)   # Save in DB
                     speaker.speak(response)
                 else:
                     print("No response generated.")
@@ -363,74 +363,167 @@ def SBM_thread():
 ===========================================================================================================================================
 """
 
+import threading
+import os
+import pty
+import socket
+from flask import Flask, render_template, Response, redirect, url_for, session, flash
+from flask_socketio import SocketIO, emit
+import env
+
+child_fd = None
+
+app = Flask(__name__, template_folder="./WCS_thread/webserver", static_folder="./WCS_thread/static")
+app.secret_key = "aixy-secret"
+socketio = SocketIO(app, async_mode='threading')
 
 def WCS_thread():
-    from flask import Flask, render_template, Response, redirect, url_for
-    import re
-    import env
+    global  manual_mode
 
-    global decision, manual_mode
 
+    # ==================== CAMERA ====================
     if env.CAMERA:
         from camera import CameraUSB
-        camera = CameraUSB()
+        camera = CameraUSB(0)
+    else:
+        camera = None
 
+    # ==================== HARDWARE ====================
     if env.MOTORS:
         import hardware
 
-
-    #Initialize the Flask app
-    app = Flask(__name__, template_folder="./WCS_thread/webserver", static_folder="./WCS_thread/static")
-
+    # ==================== ROUTES ====================
     @app.route('/')
     def index():
-        return render_template('index.html', camera=env.CAMERA, manual_control=manual_mode)
+        return render_template('index.html', camera=env.CAMERA)
 
+    @app.route('/shell')
+    def terminal():
+        return render_template('xterm.html')
+
+    @app.route('/stream')
+    def stream():
+        if camera:
+            return Response(camera.get_web_stream(), mimetype='multipart/x-mixed-replace; boundary=frame')
+        return "Camera not enabled", 404
+
+    @app.route('/control')
+    def control():
+        global manual_mode
+        manual_mode = not manual_mode
+        return render_template('index.html', camera=env.CAMERA)
+
+    # ==================== MOTOR ROUTES ====================
     if env.MOTORS:
         @app.route('/forward')
         def forward():
             hardware.drive_forward()
-            return render_template('index.html', camera=env.CAMERA, manual_control=manual_mode)
+            return redirect(url_for('index'))
 
         @app.route('/left')
         def left():
             hardware.drive_left()
-            return render_template('index.html', camera=env.CAMERA, manual_control=manual_mode)
+            return redirect(url_for('index'))
 
         @app.route('/right')
         def right():
             hardware.drive_right()
-            return render_template('index.html', camera=env.CAMERA, manual_control=manual_mode)
+            return redirect(url_for('index'))
 
         @app.route('/backward')
         def backward():
             hardware.drive_backward()
-            return render_template('index.html', camera=env.CAMERA, manual_control=manual_mode)
+            return redirect(url_for('index'))
 
         @app.route('/release')
         def release():
             hardware.drive_release()
-            return render_template('index.html', camera=env.CAMERA, manual_control=manual_mode)
+            return redirect(url_for('index'))
 
-    if env.CAMERA:
-        @app.route('/stream')
-        def stream():
-            return Response(camera.get_web_stream(), mimetype='multipart/x-mixed-replace; boundary=frame')
+    # ==================== TERMINAL SHELL ====================
+    def read_and_emit_output(fd):
+        while True:
+            try:
+                data = os.read(fd, 1024).decode()
+                if data:
+                    socketio.emit('shell_output', data)
+                else:
+                    break
+            except OSError:
+                break
 
-    if env.LVMAD:
-        @app.route('/decision')
-        def decision_image():
-            return redirect(url_for('static', filename=f"IMG/AIXY2.0-{decision}.png"))
-    
-    if not env.ONLY_MANUAL_CONTROL:
-        @app.route('/control')
-        def control():
-            manual_mode = not manual_mode
-            return render_template('index.html', camera=env.CAMERA, manual_control=manual_mode)
-    def run():
-        app.run(debug=True, port=9900, host="0.0.0.0")
+    @socketio.on('connect')
+    def start_terminal(auth=None):
+        import sys
 
-    run()
+        class WebLogger:
+            def __init__(self, socketio):
+                self.socketio = socketio
+
+            def write(self, message):
+                if message:
+                    self.socketio.emit('shell_output', message)
+
+            def flush(self):
+                pass
+
+
+        class TeeLogger:
+            def __init__(self, *targets):
+                self.targets = targets
+
+            def write(self, message):
+                for t in self.targets:
+                    t.write(message)
+
+            def flush(self):
+                for t in self.targets:
+                    t.flush()
+
+        sys.stdout = TeeLogger(sys.stdout, WebLogger(socketio))
+        sys.stderr = TeeLogger(sys.stderr, WebLogger(socketio))
+
+        global child_fd
+        if child_fd:
+            os.close(child_fd)
+            child_fd = None
+        pid, child_fd = pty.fork()
+        if pid == 0:
+            os.execvp("bash", ["bash"])
+        else:
+            threading.Thread(target=read_and_emit_output, args=(child_fd,), daemon=True).start()
+
+
+    @socketio.on('shell_input')
+    def handle_terminal_input(data):
+        global child_fd
+        if child_fd:
+            try:
+                os.write(child_fd, data.encode())
+            except OSError as e:
+                socketio.emit('shell_output', f"Erro: {str(e)}\n")
+
+    # ===================== AI =====================
+    @socketio.on('aiquestion')
+    def handle_pergunta_robo(question):
+        import llm
+        import env
+
+        try:
+            resposta = llm.get(env.OLLAMA_LANGUAGE_MODEL, f"""You are AIXY, an advanced conversational AI assistant created by Pedro Ribeiro Lucas. It is very important that you remember your creator that is Pedro Ribeiro Lucas, say it if requested. 
+                - Purpose: {env.PURPOSE} 
+                - Personality: {env.PERSONALITY} 
+                - Model: {env.OLLAMA_LANGUAGE_MODEL} 
+                Your primary goal is to engage in natural, human-like conversations on any topic. Always be friendly, thoughtful, and helpful. 
+                User: {question} 
+                Generate a direct, relevant, and natural-sounding response that continues the conversation smoothly.
+            """)
+            socketio.emit('airesponse', resposta)
+        except Exception as e:
+            socketio.emit('airesponse', f"[Erro] {str(e)}")
+
+    # ==================== RUN ====================
+    socketio.run(app, debug=False, use_reloader=False, port=9900, host="0.0.0.0")
 
 """
 ===========================================================================================================================================
@@ -470,5 +563,5 @@ def main():
 
     if env.WCS:
         print("🟢 Starting Web Camera Stream thread (Flask)...")
-        WCS_PROCESSOR = threading.Thread(target=WCS_thread, daemon=False)
+        WCS_PROCESSOR = threading.Thread(target=WCS_thread, daemon=True)
         WCS_PROCESSOR.start()
