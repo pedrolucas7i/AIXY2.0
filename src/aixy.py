@@ -274,7 +274,6 @@ def generate_response(user_text):
                 Most Recent Message: {db.getLastConversation()} 
                 User: {user_text} 
                 Generate a direct, relevant, and natural-sounding response that continues the conversation smoothly.
-                Speak only in Portuguese. your respose must in Portuguese.
             """
 
     return llm.get(env.OLLAMA_LANGUAGE_MODEL, prompt)
