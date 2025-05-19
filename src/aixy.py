@@ -546,6 +546,8 @@ def main():
             print("🟢 Starting Large Vision Model Autonomous Drive thread...")
             LVMAD_PROCESSOR = threading.Thread(target=LVMAD_thread, args=(thingToSearch, additionalPrompt), daemon=False)
             LVMAD_PROCESSOR.start()
+            import hardware
+            hardware.arm_up()
 
 
     if env.LLMAC:
