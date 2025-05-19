@@ -37,7 +37,7 @@ Servo clamp;
 NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE);   // NewPing setup of pins and maximum distance.
 
 int backward_pwm = 175;                               // PWM used to drive backward
-int armPos = 180;                                     // Variable that saves the actual arm servo position
+int armPos = 90;                                      // Variable that saves the actual arm servo position
 int clampPos = 90;                                    // Variable that saves the actual clamp servo position
 
 void setup() {
@@ -49,6 +49,8 @@ void setup() {
   arm.attach(PIN_ARM);                                // Defining the PIN of ARM SERVO
   clamp.attach(PIN_CLAMP);                            // Defining the PIN of CLAMP SERVO
   Serial.begin(9600);                                 // Start Serial comunication in 9600 bauds
+  arm_up();
+  
 }
 
 void loop() {
@@ -114,7 +116,7 @@ void drive_forward() {
   digitalWrite(PIN_MOTOR2_IN2, LOW);
   digitalWrite(PIN_MOTOR1_IN1, HIGH);
   digitalWrite(PIN_MOTOR2_IN1, HIGH);
-  delay(20);
+  delay(300);
 }
 
 void drive_backward() {
@@ -122,7 +124,7 @@ void drive_backward() {
   digitalWrite(PIN_MOTOR2_IN1, LOW);
   analogWrite(PIN_MOTOR1_IN2, backward_pwm);
   analogWrite(PIN_MOTOR2_IN2, backward_pwm);
-  delay(20);
+  delay(300);
 }
 
 void drive_right() {
@@ -130,7 +132,7 @@ void drive_right() {
   digitalWrite(PIN_MOTOR2_IN1, HIGH);
   digitalWrite(PIN_MOTOR1_IN2, HIGH);
   digitalWrite(PIN_MOTOR2_IN2, LOW);
-  delay(20);
+  delay(300);
 }
 
 void drive_left() {
@@ -138,7 +140,7 @@ void drive_left() {
   digitalWrite(PIN_MOTOR2_IN1, LOW);
   digitalWrite(PIN_MOTOR1_IN2, LOW);
   digitalWrite(PIN_MOTOR2_IN2, HIGH);
-  delay(20);
+  delay(300);
 }
 
 void drive_release() {

@@ -97,7 +97,8 @@ class CameraUSB:
                 continue
 
             frame_resized = cv2.resize(frame, (224, 224), interpolation=cv2.INTER_AREA)
-            _, jpeg = cv2.imencode('.jpg', frame_resized)
+            rotated = np.rot90(frame_resized, 2)
+            _, jpeg = cv2.imencode('.jpg', rotated)
 
             with self.lock:
                 self.frame = jpeg.tobytes()
