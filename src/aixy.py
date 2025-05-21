@@ -382,7 +382,7 @@ def WCS_thread():
     # ==================== CAMERA ====================
     if env.CAMERA:
         from camera import CameraUSB
-        camera = CameraUSB(0)
+        camera = CameraUSB(1)
     else:
         camera = None
 
