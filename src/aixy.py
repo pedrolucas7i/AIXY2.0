@@ -536,33 +536,35 @@ def WCS_thread():
 
     # ==================== JOYSTICK VIA SOCKETIO ====================
     if env.MOTORS:
+        import hardware
         @socketio.on('joystick_manual')
         def handle_joystick_manual(data):
-            import hardware
             action = data.get("action")
             arm = data.get("arm")
             clamp = data.get("clamp")
+            
+            if action:
+                if action == "forward":
+                    hardware.drive_forward()
+                elif action == "backward":
+                    hardware.drive_backward()
+                elif action == "left":
+                    hardware.drive_left()
+                elif action == "right":
+                    hardware.drive_right()
+                elif action == "release":
+                    hardware.drive_release()
+            if arm:
+                if arm == "up":
+                    hardware.arm_up()
+                elif arm == "down":
+                    hardware.arm_down()
 
-            if action == "forward":
-                hardware.drive_forward()
-            elif action == "backward":
-                hardware.drive_backward()
-            elif action == "left":
-                hardware.drive_left()
-            elif action == "right":
-                hardware.drive_right()
-            elif action == "release":
-                hardware.drive_release()
-
-            if arm == "up":
-                hardware.arm_up()
-            elif arm == "down":
-                hardware.arm_down()
-
-            if clamp == "close":
-                hardware.clamp_catch()
-            elif clamp == "open":
-                hardware.clamp_release()
+            if clamp:
+                if clamp == "close":
+                    hardware.clamp_catch()
+                elif clamp == "open":
+                    hardware.clamp_release()
 
             socketio.emit("joystick_manual_ack", {"status": "ok"})
 
