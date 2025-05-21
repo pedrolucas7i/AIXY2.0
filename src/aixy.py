@@ -521,7 +521,6 @@ def WCS_thread():
         try:
             import db
             import commands
-            from your_module import generate_response  # ajuste para o nome correto do seu módulo/função
 
             if not (commands.executeCommand(question.lower())):
                 response = generate_response(question)
