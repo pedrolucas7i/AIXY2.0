@@ -156,7 +156,11 @@
         if (buttons[4]) clamp = "close"; // LB
         if (buttons[5]) clamp = "open";  // RB
 
-        const currState = `{action:${action} arm:${arm||'-'} clamp:${clamp||'-'}}`;
+        const currState = {
+            action: action || null,
+            arm: arm || null,
+            clamp: clamp || null
+        };
         updateJoystickVisualizer(lx, ly);
         addJoystickLog(`Joystick (X:${lx.toFixed(2)} Y:${ly.toFixed(2)}) action:${action} arm:${arm||'-'} clamp:${clamp||'-'}`);
 
