@@ -1,0 +1,11 @@
+[Unit]
+Description= AiXY2.0 StartUP
+DefaultDependencies=no
+Before=multi-user.target aixy.service
+
+[Service]
+Type=oneshot
+ExecStart=/home/aixy/AIXY2.0/scripts/startup.sh
+
+[Install]
+WantedBy=multi-user.target
