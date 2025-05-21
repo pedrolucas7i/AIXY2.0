@@ -156,3 +156,14 @@ def clamp_catch():
 def clamp_release():
     send_command("clamp_release")
     time.sleep(0.1)
+
+# === LIGHT CONTROL ===
+
+def ligthON():
+    send_command("light_on")
+
+def ligthOFF():
+    send_command("light_off")
+
+def flash_light():
+    send_command("flash_light")
