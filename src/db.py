@@ -1,44 +1,44 @@
 import sqlite3
 
-conection = sqlite3.connect('aixy.db')
-cursor = conection.cursor()
-
-cursor.execute('''
-CREATE TABLE IF NOT EXISTS conversations (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    said TEXT NOT NULL,
-    response TEXT,
-    timestamp TEXT DEFAULT CURRENT_TIMESTAMP
-)
-''')
-
+def create_tables():
+    with sqlite3.connect('aixy.db') as conn:
+        cursor = conn.cursor()
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS conversations (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            said TEXT NOT NULL,
+            response TEXT,
+            timestamp TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+        ''')
+        conn.commit()
 
 def insertConversation(said, response):
-    cursor.execute(f'''
-    INSERT INTO conversations (said, response)
-    VALUES (?, ?)
-    ''', (said, response))
-
-    conection.commit()
+    with sqlite3.connect('aixy.db') as conn:
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO conversations (said, response)
+            VALUES (?, ?)
+        ''', (said, response))
+        conn.commit()
 
 def getConversations():
-    cursor.execute("SELECT said, response, timestamp FROM conversations")
-    conversations = cursor.fetchall()
+    with sqlite3.connect('aixy.db') as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT said, response, timestamp FROM conversations")
+        conversations = cursor.fetchall()
     return conversations
 
 def getLastConversation():
-    cursor.execute("""
-        SELECT said, response, timestamp 
-        FROM conversations 
-        ORDER BY timestamp DESC 
-        LIMIT 1
-    """)
-    conversation = cursor.fetchone()
-    if conversation:
-        return conversation
-    else:
-        return ""
+    with sqlite3.connect('aixy.db') as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT said, response, timestamp 
+            FROM conversations 
+            ORDER BY timestamp DESC 
+            LIMIT 1
+        """)
+        conversation = cursor.fetchone()
+    return conversation if conversation else ""
 
-def closeConnection():
-    cursor.close()
-    conection.close()
+create_tables()

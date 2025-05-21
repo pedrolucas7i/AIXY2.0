@@ -1,148 +1,314 @@
-html, body {
+body, html {
   margin: 0;
   padding: 0;
   height: 100%;
   font-family: Arial, sans-serif;
-  background-color: #121212;
-  color: white;
-}
-
-.container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
-  gap: 10px;
-  height: 100vh;
-  padding: 10px;
+  background: #121212;
+  color: #fff;
   box-sizing: border-box;
 }
 
-/* Cada "quadrado" */
-.top-section > div, .bottom-section > div {
-  background-color: #222;
-  border-radius: 10px;
+body.light {
+  background: #f6f7fa;
+  color: #232323;
+}
+
+.dashboard-main {
+  min-height: 100vh;
+  min-width: 100vw;
+  overflow: hidden;
+  position: relative;
+}
+
+.theme-toggle {
+  position: fixed;
+  top: 20px;
+  right: 32px;
+  z-index: 1000;
+  width: 48px;
+  height: 48px;
+  border: none;
+  border-radius: 50%;
+  background: #232a3a;
+  color: #ffe066;
+  font-size: 1.6em;
+  box-shadow: 0 4px 18px #0004;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.18s, color 0.18s;
+  outline: none;
+}
+.theme-toggle:hover {
+  background: #3a86ff;
+  color: #fff;
+}
+body.light .theme-toggle {
+  background: #dbe7fa;
+  color: #ffba08;
+}
+body.light .theme-toggle:hover {
+  background: #2258a2;
+  color: #fff;
+}
+
+/* Grid 3 colunas x 2 linhas, com espaçamento consistente */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 32px;         /* Mais espaço entre todos os painéis */
+  width: 100vw;
+  height: 100vh;
+  padding: 64px 32px 32px 32px;
+  box-sizing: border-box;
+}
+
+/* Painéis */
+.dashboard-panel {
+  background: #21232b;
+  border-radius: 16px;
+  box-shadow: 0 2px 16px #0002;
+  padding: 18px 15px 15px 15px;
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  transition: background 0.2s;
+}
+body.light .dashboard-panel {
+  background: #f8fafd;
+  color: #232323;
+  box-shadow: 0 2px 16px #c3d4e633;
+}
+.dashboard-panel h3 {
+  margin: 0 0 10px 0;
+  font-size: 1.15em;
+  color: #3a86ff;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+body.light .dashboard-panel h3 {
+  color: #2258a2;
+}
+
+/* Câmera */
+.camera-panel {
+  grid-column: 1/2;
+  grid-row: 1/2;
+}
+.camera-container {
+  width: 100%;
+  height: 100%;
+  min-height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.camera-stream, .fallback {
+  width: 100%;
+  height: 100%;
+  min-height: 120px;
+  object-fit: contain;
+  border-radius: 12px;
+  background: #181818;
+}
+body.light .camera-stream, body.light .fallback {
+  background: #e9e9f9;
+}
+.fallback {
+  opacity: 0.5;
+  filter: grayscale(0.3);
+}
+
+/* Joystick visualizer */
+.joystick-graph-panel {
+  grid-column: 2/3;
+  grid-row: 1/2;
+}
+.joystick-visualizer-wrap {
+  width: 100%;
+  display: flex;
   justify-content: center;
   align-items: center;
-  padding: 10px;
-  overflow: hidden;
+  height: 210px;
+}
+#joystickVisualizer {
+  background: #18181c;
+  border-radius: 50%;
+  box-shadow: 0 0 12px #0006;
+  width: 200px;
+  height: 200px;
+  display: block;
+}
+body.light #joystickVisualizer {
+  background: #f2f6ff;
+  box-shadow: 0 0 8px #aac5ec99;
 }
 
-/* Ajusta cada filho da top-section para ocupar metade da linha */
-.top-section {
-  display: contents; /* permite os filhos irem direto para grid */
-}
-
-/* Ajusta bottom-section para ficar grid também */
-.bottom-section {
-  display: contents;
-}
-
-/* iframe shell */
-.shell-frame {
-  width: 100%;
-  height: 100%;
-  border: none;
-  border-radius: 10px;
-}
-
-/* Imagens da câmera */
-.camera-container img {
-  max-width: 100%;
-  max-height: 100%;
-  min-width: 70%;
-  min-height: 70%;
-  object-fit: contain;
-  border-radius: 10px;
-}
-
-/* Controle manual */
-.manual-control {
-  color: white;
-  width: 100%;
-  height: 100%;
-  text-align: center;
-}
-
-.manual-control h3 {
-  margin-bottom: 1rem;
-}
-
-.joystick-base {
-  margin: 0 auto;
-}
-
-/* Botão */
-.manual-control button {
-  margin-top: 1rem;
-  padding: 10px 20px;
-  background-color: rgb(255, 65, 65);
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  color: white;
-}
-
-/* Chat */
-.chat-container {
-  width: 100%;
-  height: 100%;
+/* Chat IA */
+.chat-panel {
+  grid-column: 3/4;
+  grid-row: 1/2;
+  min-width: 230px;
+  min-height: 250px;
   display: flex;
   flex-direction: column;
-  background-color: #333;
-  border-radius: 10px;
 }
-
-#reponses {
-  flex-grow: 1;
+.chat-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: none;
+  border-radius: 0;
+  height: 100%;
+}
+.chat-responses {
+  flex: 1;
+  background: #181818;
+  border-radius: 8px;
   padding: 10px;
   overflow-y: auto;
+  margin-bottom: 8px;
   font-family: monospace;
-  white-space: pre-wrap;
+  font-size: 1.04em;
+  color: #bde6ff;
 }
-
+body.light .chat-responses {
+  background: #e9e9f2;
+  color: #232323;
+}
 .chat-form {
   display: flex;
-  padding: 10px;
-  background-color: #222;
-  border-radius: 0 0 10px 10px;
+  gap: 7px;
+  padding: 0;
+  background: none;
 }
-
 .chat-form input {
-  flex-grow: 1;
-  padding: 8px;
+  flex: 1;
+  padding: 8px 10px;
   font-size: 1rem;
   border: none;
   border-radius: 5px;
   outline: none;
+  background: #121212;
+  color: #fff;
 }
-
+body.light .chat-form input {
+  background: #e2e3f5;
+  color: #232323;
+}
 .chat-form button {
   width: 80px;
-  margin-left: 10px;
-  background-color: rgb(77, 65, 255);
+  background-color: #3a86ff;
   border: none;
   border-radius: 5px;
   color: white;
   cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s;
 }
-/* Joystick Base */
-.joystick-base {
-  width: 150px;
-  height: 150px;
-  background-color: #444;
-  border-radius: 50%;
-  position: relative;
+.chat-form button:hover {
+  background-color: #2258a2;
 }
 
-/* Joystick Thumb */
-.joystick-thumb {
-  width: 60px;
-  height: 60px;
-  background-color: #999;
-  border-radius: 50%;
-  position: absolute;
-  top: 45px;
-  left: 45px;
+/* Histórico comandos */
+.cmd-history-panel {
+  grid-column: 1/2;
+  grid-row: 2/3;
+}
+.cmd-history {
+  background: #181818;
+  border-radius: 8px;
+  padding: 0.8em;
+  max-height: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  font-size: 0.97em;
+  font-family: 'Fira Mono', 'Consolas', monospace;
+  border: 1px solid #242424;
+}
+body.light .cmd-history {
+  background: #f9f9ff;
+  color: #353535;
+  border-color: #e3e4ee;
+}
+.cmd-history div {
+  padding: 2px 0 2px 2px;
+  border-bottom: 1px solid #252525;
+  font-size: 0.99em;
+}
+.cmd-history div:last-child { border-bottom: none; }
+
+/* Log do joystick */
+.joystick-log-panel {
+  grid-column: 2/3;
+  grid-row: 2/3;
+}
+.joystick-log {
+  background: #191a1e;
+  border-radius: 8px;
+  padding: 0.8em;
+  max-height: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  font-size: 0.97em;
+  font-family: 'Fira Mono', 'Consolas', monospace;
+  border: 1px solid #222328;
+}
+body.light .joystick-log {
+  background: #f9f9ff;
+  color: #353535;
+  border-color: #e3e4ee;
+}
+.joystick-log div {
+  padding: 2px 0 2px 2px;
+  border-bottom: 1px solid #232326;
+  font-size: 0.98em;
+}
+.joystick-log div:last-child { border-bottom: none; }
+
+/* Terminal/Shell */
+.shell-panel {
+  grid-column: 3/4;
+  grid-row: 2/3;
+  display: flex;
+  flex-direction: column;
+}
+.shell-frame {
+  width: 100%;
+  height: 100%;
+  min-height: 110px;
+  border: none;
+  border-radius: 10px;
+  background: #181818;
+  flex: 1;
+}
+body.light .shell-frame {
+  background: #e9e9f9;
+}
+
+.chat-message + .chat-message {
+  margin-top: 12px;
+}
+
+/* Responsivo: stack em telas pequenas */
+@media (max-width: 1100px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(6, minmax(180px, auto));
+    gap: 20px;
+    padding: 70px 8px 8px 8px;
+  }
+  .dashboard-panel {
+    min-width: 0;
+    min-height: 0;
+  }
+  .chat-panel, .shell-panel {
+    min-height: 190px;
+  }
 }

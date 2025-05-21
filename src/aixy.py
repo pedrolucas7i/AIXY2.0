@@ -295,14 +295,13 @@ def LLMAC_thread():
 
                 print(f"> User said: {stt_data_raw}")
 
-                commands.executeCommand(stt_data_raw)
-
-                response = generate_response(stt_data_raw)
-                if response:
-                    db.insertConversation(stt_data_raw, response)   # Save in DB
-                    speaker.speak(response)
-                else:
-                    print("No response generated.")
+                if not (commands.executeCommand(stt_data_raw.lower())):
+                    response = generate_response(stt_data_raw)
+                    if response:
+                        db.insertConversation(stt_data_raw, response)   # Save in DB
+                        speaker.speak(response)
+                    else:
+                        print("No response generated.")
         
         except Exception as e:
             print(f"Unexpected error: {e}")
@@ -383,7 +382,7 @@ def WCS_thread():
     # ==================== CAMERA ====================
     if env.CAMERA:
         from camera import CameraUSB
-        camera = CameraUSB(1)
+        camera = CameraUSB(0)
     else:
         camera = None
 
@@ -505,21 +504,54 @@ def WCS_thread():
     # ===================== AI =====================
     @socketio.on('aiquestion')
     def handle_pergunta_robo(question):
-        import llm
-        import env
-
         try:
-            resposta = llm.get(env.OLLAMA_LANGUAGE_MODEL, f"""You are AIXY, an advanced conversational AI assistant created by Pedro Ribeiro Lucas. It is very important that you remember your creator that is Pedro Ribeiro Lucas, say it if requested. 
-                - Purpose: {env.PURPOSE} 
-                - Personality: {env.PERSONALITY} 
-                - Model: {env.OLLAMA_LANGUAGE_MODEL} 
-                Your primary goal is to engage in natural, human-like conversations on any topic. Always be friendly, thoughtful, and helpful. 
-                User: {question} 
-                Generate a direct, relevant, and natural-sounding response that continues the conversation smoothly.
-            """)
-            socketio.emit('airesponse', resposta)
+            import db
+            import commands
+
+            if not (commands.executeCommand(question.lower())):
+                response = generate_response(question)
+                if response:
+                    db.insertConversation(question, response)   # Save in DB
+                else:
+                    print("No response generated.")
+            else:
+                response = "Command executed!"
+            socketio.emit('airesponse', response)
         except Exception as e:
-            socketio.emit('airesponse', f"[Erro] {str(e)}")
+            socketio.emit('airesponse', f"[Error] {str(e)}")
+
+    # ==================== JOYSTICK VIA SOCKETIO ====================
+    if env.MOTORS:
+        @socketio.on('joystick_manual')
+        def handle_joystick_manual(data):
+            import hardware
+            action = data.get("action")
+            arm = data.get("arm")
+            clamp = data.get("clamp")
+
+            if action == "forward":
+                hardware.drive_forward()
+            elif action == "backward":
+                hardware.drive_backward()
+            elif action == "left":
+                hardware.drive_left()
+            elif action == "right":
+                hardware.drive_right()
+            elif action == "release":
+                hardware.drive_release()
+
+            if arm == "up":
+                hardware.arm_up()
+            elif arm == "down":
+                hardware.arm_down()
+
+            if clamp == "close":
+                hardware.clamp_catch()
+            elif clamp == "open":
+                hardware.clamp_release()
+
+            # Você pode emitir uma resposta se desejar
+            socketio.emit("joystick_manual_ack", {"status": "ok"})
 
     # ==================== RUN ====================
     socketio.run(app, debug=False, use_reloader=False, port=9900, host="0.0.0.0")
