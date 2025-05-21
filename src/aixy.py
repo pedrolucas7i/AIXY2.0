@@ -375,16 +375,32 @@ app = Flask(__name__, template_folder="./WCS_thread/webserver", static_folder=".
 app.secret_key = "aixy-secret"
 socketio = SocketIO(app, async_mode='threading')
 
-def WCS_thread():
-    global  manual_mode
+def find_camera_index(max_index=10):
+    try:
+        import cv2
+        for idx in range(max_index):
+            cap = cv2.VideoCapture(idx)
+            if cap is not None and cap.isOpened():
+                ret, frame = cap.read()
+                cap.release()
+                if ret:
+                    return idx
+        return None
+    except Exception:
+        return None
 
+def WCS_thread():
+    global manual_mode
 
     # ==================== CAMERA ====================
+    camera = None
     if env.CAMERA:
         from camera import CameraUSB
-        camera = CameraUSB(1)
-    else:
-        camera = None
+        cam_idx = find_camera_index()
+        if cam_idx is not None:
+            camera = CameraUSB(cam_idx)
+        else:
+            camera = None
 
     # ==================== HARDWARE ====================
     if env.MOTORS:
@@ -465,7 +481,6 @@ def WCS_thread():
             def flush(self):
                 pass
 
-
         class TeeLogger:
             def __init__(self, *targets):
                 self.targets = targets
@@ -491,7 +506,6 @@ def WCS_thread():
         else:
             threading.Thread(target=read_and_emit_output, args=(child_fd,), daemon=True).start()
 
-
     @socketio.on('shell_input')
     def handle_terminal_input(data):
         global child_fd
@@ -507,11 +521,12 @@ def WCS_thread():
         try:
             import db
             import commands
+            from your_module import generate_response  # ajuste para o nome correto do seu módulo/função
 
             if not (commands.executeCommand(question.lower())):
                 response = generate_response(question)
                 if response:
-                    db.insertConversation(question, response)   # Save in DB
+                    db.insertConversation(question, response)
                 else:
                     print("No response generated.")
             else:
@@ -550,7 +565,6 @@ def WCS_thread():
             elif clamp == "open":
                 hardware.clamp_release()
 
-            # Você pode emitir uma resposta se desejar
             socketio.emit("joystick_manual_ack", {"status": "ok"})
 
     # ==================== RUN ====================
@@ -594,5 +608,5 @@ def main():
 
     if env.WCS:
         print("🟢 Starting Web Camera Stream thread (Flask)...")
-        WCS_PROCESSOR = threading.Thread(target=WCS_thread, daemon=True)
+        WCS_PROCESSOR = threading.Thread(target=WCS_thread, daemon=False)
         WCS_PROCESSOR.start()
