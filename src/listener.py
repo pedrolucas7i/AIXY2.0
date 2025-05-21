@@ -29,8 +29,8 @@ import env
 SAMPLE_RATE = 44100
 CHANNELS = 1
 BLOCK_SIZE = 1024
-SILENCE_THRESHOLD = 380  # Lower threshold for silence detection
-SILENCE_TIME = 1  # seconds (how long to wait before stopping)
+SILENCE_THRESHOLD = 500  # Lower threshold for silence detection
+SILENCE_TIME = 1.5  # seconds (how long to wait before stopping)
 
 SERVER_URL = env.WHISPER_HOST
 
