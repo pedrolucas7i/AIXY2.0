@@ -567,7 +567,7 @@ def WCS_thread():
             socketio.emit("joystick_manual_ack", {"status": "ok"})
 
     # ==================== RUN ====================
-    socketio.run(app, debug=False, use_reloader=False, port=9900, host="0.0.0.0")
+    socketio.run(app, debug=False,  allow_unsafe_werkzeug=True, use_reloader=False, port=9900, host="0.0.0.0")
 
 """
 ===========================================================================================================================================
