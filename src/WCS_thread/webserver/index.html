@@ -4,66 +4,195 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/style.css') }}">
     <title>AiXY2.0 SOFTWARE</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/style.css') }}">
 </head>
-<body style="overflow: hidden;">
-    <div class="container">
-        <div class="top-section">
-            <div>
-                <iframe src="./shell" class="shell-frame"></iframe>
-            </div>
+<body class="dark">
+<div class="dashboard-main">
+    <button class="theme-toggle" id="toggle-theme" title="Alternar tema"></button>
+    <div class="dashboard-grid">
+        <!-- Linha 1 -->
+        <div class="dashboard-panel camera-panel">
+            <h3>Câmera</h3>
             <div class="camera-container">
                 {% if camera %}
-                    <img id="camera_image" src="{{ url_for('stream') }}">
+                    <img id="camera_image" class="camera-stream" src="{{ url_for('stream') }}">
                 {% else %}
-                    <img src="static/IMG/CAMERANOTFOUND.jpg" class="fallback">
+                    <img src="static/IMG/CAMERANOTFOUND.jpg" class="camera-stream fallback">
                 {% endif %}
             </div>
         </div>
-        <div class="bottom-section">
-            <div class="manual-control">
-                <h3>Manual Control</h3>
-                <div class="joystick-base" id="joystick">
-                    <div class="joystick-thumb" id="thumb"></div>
-                </div>
-                <button onclick="window.location.href='/control'">Switch to Autonomous</button>
+        <div class="dashboard-panel joystick-graph-panel">
+            <h3>Joystick</h3>
+            <div class="joystick-visualizer-wrap">
+                <canvas id="joystickVisualizer" width="200" height="200"></canvas>
             </div>
-
+        </div>
+        <div class="dashboard-panel chat-panel">
+            <h3>AiXY CHAT</h3>
             <div class="chat-container">
-                <div id="reponses"></div>
+                <div id="reponses" class="chat-responses"></div>
                 <form class="chat-form" onsubmit="return false;">
-                    <input name="questions" id="questions" type="text" placeholder="Ask something..." autocomplete="off">
-                    <button type="submit">Ask</button>
+                    <input name="questions" id="questions" type="text" placeholder="Pergunte algo para o AiXY..." autocomplete="off">
+                    <button type="submit">Enviar</button>
                 </form>
             </div>
         </div>
+        <!-- Linha 2 -->
+        <div class="dashboard-panel cmd-history-panel">
+            <h3>Histórico de Comandos</h3>
+            <div class="cmd-history" id="cmd-history"></div>
+        </div>
+        <div class="dashboard-panel joystick-log-panel">
+            <h3>Log do Joystick</h3>
+            <div class="joystick-log" id="joystick-log"></div>
+        </div>
+        <div class="dashboard-panel shell-panel">
+            <h3>Terminal</h3>
+            <iframe src="./shell" class="shell-frame"></iframe>
+        </div>
     </div>
-    <script src="{{ url_for('static', filename='JS/joystick.js') }}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/socket.io-client/dist/socket.io.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/socket.io-client/dist/socket.io.js"></script>
-    <script>
-        const socket = io(); // conecta ao servidor via SocketIO
+</div>
+<script src="https://cdn.jsdelivr.net/npm/socket.io-client/dist/socket.io.js"></script>
+<script>
+    // === Modo Claro/Escuro ===
+    const themeBtn = document.getElementById("toggle-theme");
+    function setThemeIcon() {
+        themeBtn.textContent = document.body.classList.contains("light") ? "☀️" : "🌙";
+    }
+    themeBtn.addEventListener("click", () => {
+        document.body.classList.toggle("dark");
+        document.body.classList.toggle("light");
+        setThemeIcon();
+    });
+    setThemeIcon();
 
-        const form = document.querySelector('.chat-form');
-        const input = document.querySelector('#questions');
-        const output = document.querySelector('#reponses');
+    // === Histórico / Log de Comandos ===
+    const cmdHistory = document.getElementById('cmd-history');
+    const joystickLog = document.getElementById('joystick-log');
+    const MAX_HISTORY = 30;
+    function addHistory(el, txt) {
+        const d = document.createElement('div');
+        d.textContent = `[${(new Date()).toLocaleTimeString()}] ${txt}`;
+        el.appendChild(d);
+        if (el.children.length > MAX_HISTORY) el.removeChild(el.firstChild);
+        el.scrollTop = el.scrollHeight;
+    }
+    function addCmdHistory(cmd) { addHistory(cmdHistory, cmd); }
+    function addJoystickLog(txt) { addHistory(joystickLog, txt); }
 
-        form.addEventListener('submit', () => {
-            const pergunta = input.value.trim();
-            if (pergunta !== '') {
-                socket.emit('aiquestion', pergunta); // envia ao servidor Flask
-                input.value = '';
-            }
-        });
+    // === Visualizador de Joystick ===
+    const vis = document.getElementById('joystickVisualizer');
+    const vctx = vis.getContext('2d');
+    function drawJoystick(x, y) {
+        const w = vis.width;
+        const h = vis.height;
+        const r = w * 0.45;
+        const cx = w / 2, cy = h / 2;
 
-        socket.on('airesponse', (resposta) => {
-            const div = document.createElement('div');
-            div.textContent = '[AIXY2.0]: ' + resposta;
-            output.appendChild(div);
-            output.scrollTop = output.scrollHeight;
-        });
-    </script>
+        vctx.clearRect(0,0,w,h);
+
+        // Círculo externo
+        vctx.beginPath();
+        vctx.arc(cx, cy, r, 0, 2 * Math.PI);
+        vctx.strokeStyle = "#3a86ff";
+        vctx.lineWidth = 5;
+        vctx.stroke();
+
+        // Eixos
+        vctx.beginPath();
+        vctx.moveTo(cx - r, cy);
+        vctx.lineTo(cx + r, cy);
+        vctx.moveTo(cx, cy - r);
+        vctx.lineTo(cx, cy + r);
+        vctx.strokeStyle = "#666";
+        vctx.lineWidth = 1.5;
+        vctx.stroke();
+
+        // Deadzone
+        vctx.beginPath();
+        vctx.arc(cx, cy, r * 0.18, 0, 2 * Math.PI);
+        vctx.strokeStyle = "#aaa3";
+        vctx.lineWidth = 1;
+        vctx.stroke();
+
+        // Posição do stick
+        const px = cx + x * r;
+        const py = cy + y * r;
+        vctx.beginPath();
+        vctx.arc(px, py, 16, 0, 2 * Math.PI);
+        vctx.fillStyle = "#f72585";
+        vctx.shadowColor = "#f72585";
+        vctx.shadowBlur = 12;
+        vctx.fill();
+        vctx.shadowBlur = 0;
+    }
+    function updateJoystickVisualizer(x, y) {
+        drawJoystick(x, y);
+    }
+
+    // === Joystick/Gamepad integration (Socket exclusivo para controle) ===
+    let prevState = {};
+    const joystickSocket = io(); // Use um socket dedicado para comandos de controle
+
+    function pollGamepad() {
+        const gamepads = navigator.getGamepads();
+        const gp = gamepads && gamepads[0];
+        if (!gp) {
+            updateJoystickVisualizer(0,0);
+            return;
+        }
+        const lx = gp.axes[0];
+        const ly = gp.axes[1];
+        const buttons = gp.buttons.map(btn => btn.pressed);
+        let action = "release";
+        if (ly < -0.5) action = "forward";
+        else if (ly > 0.5) action = "backward";
+        else if (lx < -0.5) action = "left";
+        else if (lx > 0.5) action = "right";
+        let arm = null, clamp = null;
+        if (buttons[0]) arm = "up";      // A
+        if (buttons[1]) arm = "down";    // B
+        if (buttons[4]) clamp = "close"; // LB
+        if (buttons[5]) clamp = "open";  // RB
+
+        const currState = {
+            action: action || null,
+            arm: arm || null,
+            clamp: clamp || null
+        };
+        updateJoystickVisualizer(lx, ly);
+        addJoystickLog(`Joystick (X:${lx.toFixed(2)} Y:${ly.toFixed(2)}) action:${action} arm:${arm||'-'} clamp:${clamp||'-'}`);
+
+        // Só envia se mudou ou se está ativo
+        const isActive = action !== "release" || arm !== null || clamp !== null;
+        if (JSON.stringify(currState) !== JSON.stringify(prevState) || isActive) {
+            joystickSocket.emit('joystick_manual', currState);
+            addCmdHistory(`Enviado: ${JSON.stringify(currState)}`);
+            prevState = currState;
+        }
+    }
+    setInterval(pollGamepad, 100);
+
+    // === IA Chat (Socket separado para chat, se desejar total isolamento) ===
+    const chatSocket = io(); // Se quiser, pode ser igual ao joystickSocket, ou separado
+    const form = document.querySelector('.chat-form');
+    const input = document.querySelector('#questions');
+    const output = document.querySelector('#reponses');
+    form.addEventListener('submit', () => {
+        const pergunta = input.value.trim();
+        if (pergunta !== '') {
+            chatSocket.emit('aiquestion', pergunta);
+            input.value = '';
+        }
+    });
+    chatSocket.on('airesponse', (response) => {
+        const div = document.createElement('div');
+        div.className = 'chat-message';
+        div.innerHTML = '[AIXY2.0]: ' + response;
+        output.appendChild(div);
+        output.scrollTop = output.scrollHeight;
+    });
+</script>
 </body>
-
 </html>

@@ -1,18 +1,13 @@
 [Unit]
-Description=AiXY 2.0 Service
-After=network-online.target pipewire.service
-Wants=network-online.target
+Description=AiXY2.0 Service
+After=network.target
 
 [Service]
 Type=simple
-User=root
-Environment=XDG_RUNTIME_DIR=/run/user/1000
-Environment=PULSE_SERVER=unix:/run/user/1000/pulse/native
-ExecStart=/opt/AiXY2.0/scripts/run.sh
-Restart=on-failure
-RestartSec=5
-StandardOutput=append:/opt/AiXY2.0/logs/run.log
-StandardError=append:/opt/AiXY2.0/logs/run.log
+User=aixy
+WorkingDirectory=/home/aixy/AIXY2.0/src
+ExecStart=/usr/bin/python3 /home/aixy/AIXY2.0/src/main.py
+Restart=always
 
 [Install]
 WantedBy=multi-user.target

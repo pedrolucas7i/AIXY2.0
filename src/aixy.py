@@ -48,21 +48,17 @@ def decide():
     decision = llm.get(
         env.OLLAMA_VISION_MODEL,
         """
-        Analyze the received image and determine the best action for a mobile robot based on the visible environment. Choose only one of the following words as output:
+        Analyze the received image and decide the best single action for a mobile robot in the environment.  
+        Respond ONLY with one of these four words: backward, forward, left, right. No explanations, no punctuation.
 
-        'backward' (Try not use this, except in danger cases)
-        'forward'
-        'left' (Default decision to avoid colisions and obstacules)
-        'right'
+        Rules:
+        - Avoid collisions: Never choose a direction leading directly into an obstacle. Obstacles include any visible physical object blocking the path.
+        - Prioritize safety over efficiency.
+        - Avoid being stationary: move forward, left, or right whenever safe.
+        - Use 'backward' only if no other safe option exists because the rear camera coverage is limited.
+        - When possible, favor 'left' to avoid obstacles.
+        - Speed control is handled separately and should not be included in this response.
 
-        Decide based on the following principles:
-
-        Avoid collisions: Never select a direction that would lead the robot into an obstacle.
-        Optimize the route: Prioritize paths that lead the robot to its destination in the most efficient and safe manner.
-        Avoid being stationary: The robot should keep moving whenever it is safe and feasible.
-        Minimize 'backward' usage: The camera does not cover this area, making this option less reliable and recommended only when no other safe solution exists.
-        Adjust speed to the environment: In open areas, increase speed; in tight spaces, slow down.
-        Provide only one word as a response, with no additional explanations.
         """,
         camera.get_frame() if env.CAMERA else None
     ).lower()
@@ -85,34 +81,26 @@ def find(thing):
 
     decision = llm.get(
         env.OLLAMA_VISION_MODEL, F"""
-        Analyze the received image and determine the best action for a mobile robot to locate and reach the object called: '{thing}'. Once the object is clearly identified and the robot is within 10 centimeters of it, respond only with the word:
+        Analyze the received image and determine the best single action for a mobile robot to locate and reach the object called '{thing}'.
 
-        'finded'
+        Respond ONLY with one of these words:
+        - 'finded' (when the object is clearly identified and the robot is within 10 centimeters)
+        - or one of these actions: 'backward', 'forward', 'left', 'right'
 
-        Otherwise, choose and respond with only one of the following action words to guide the robot:
+        No explanations or additional text, only one word.
 
-        'backward' (Try not use this, except in danger cases)
-        'forward'
-        'left' (Default decision to avoid colisions and obstacules)
-        'right'
-
-        Decision principles:
-
-        Find the object: Prioritize paths that move toward the object '{thing}'.
-
-        Confirm proximity: When the object is visually confirmed and estimated to be within 10 cm, return only 'finded'.
-
-        Avoid collisions: Never choose a direction that would result in hitting an obstacle.
-
-        Keep moving: Do not stop unless the object is found.
-
-        Adjust speed: In open areas, prefer faster speeds; in tight or cluttered areas, go slower.
-
-        One-word output only: Return only the chosen word — no explanations or additional text.
-
+        Rules:
+        - Find the object '{thing}': prioritize moves that get closer to it.
+        - When the object is confirmed visually and estimated within 10 cm, respond ONLY with 'finded'.
+        - Avoid collisions: do NOT select directions leading directly into obstacles (any visible object blocking the path).
+        - Keep moving: do NOT stop unless 'finded' is returned.
+        - Use 'backward' only if no other safe option exists.
+        - Default to 'left' when avoiding obstacles.
+        - Speed control is managed separately; do not include it here.
         """,
         camera.get_frame() if CAMERA else None
     ).lower()
+
     
     print(f"Decided: {decision}")
     return decision
@@ -228,22 +216,23 @@ def LVMAD_thread(thingToSearch=None, additionalPrompt=None):
                 continue
 
             if env.OA:
-                if hardware.get_distance() > 8:
-                    if thingToSearch is None:
-                        decision = decide().strip().strip("'").lower()
+                distance = hardware.get_distance()
+                if distance:
+                    if distance > 8:
+                        if thingToSearch is None:
+                            decision = decide().strip().strip("'").lower()
+                        else:
+                            decision = find(thingToSearch).strip().strip("'").lower()
+                        drive(decision)
                     else:
-                        decision = find(thingToSearch).strip().strip("'").lower()
-                    drive(decision)
-                else:
-                    hardware.drive_left()
+                        hardware.drive_backward()
+                        hardware.drive_release()
+                        hardware.drive_left()
             else:
                 if thingToSearch == None:
                     decision = decide().strip().strip("'").lower()
                 else:
                     decision = find(thingToSearch).strip().strip("'").lower()
-
-            drive(decision)
-            time.sleep(0.01)
 
     except Exception as e:
         print("Erro na thread LVMAD_thread:")
@@ -263,19 +252,34 @@ def generate_response(user_text):
     import llm
     import db
 
-    prompt = f"""You are AIXY, an advanced conversational AI assistant created by Pedro Ribeiro Lucas. It is very important that you remember your creator that is Pedro Ribeiro Lucas, say it if requested. 
-                - Purpose: {env.PURPOSE} 
-                - Personality: {env.PERSONALITY} 
-                - Model: {env.OLLAMA_LANGUAGE_MODEL} 
-                Your primary goal is to engage in natural, human-like conversations on any topic. Always be friendly, thoughtful, and helpful. 
-                You must remember previous interactions, including user names, preferences, and personal details, to ensure responses feel personal and consistent. 
-                Use the full conversation history for context, giving more weight to recent messages. 
-                Conversation History: {db.getConversations()} 
-                Most Recent Message: {db.getLastConversation()} 
-                User: {user_text} 
-                Generate a direct, relevant, and natural-sounding response that continues the conversation smoothly.
-                Speak only in Portuguese. your respose must in Portuguese.
-            """
+    prompt = f"""
+        You are AIXY, an advanced conversational AI assistant created by Pedro Ribeiro Lucas. If asked, always mention your creator is Pedro Ribeiro Lucas.
+
+        - Purpose: {env.PURPOSE}
+        - Personality: {env.PERSONALITY}
+        - Model: {env.OLLAMA_LANGUAGE_MODEL}
+
+        Your main goal is to engage in natural, friendly, and helpful conversations on any topic.
+
+        Instructions:
+        - Focus primarily on the user's latest message and the immediately preceding conversation to generate your response.
+        - Give highest priority to the latest user input and recent context; use older conversation history only if directly relevant.
+        - Detect if the topic has changed compared to previous messages; if so, do NOT associate the new topic with prior unrelated context.
+        - Do NOT include your internal reasoning, thought process, or any explanations in your output.
+        - Respond naturally, clearly, and concisely, avoiding any unnecessary or irrelevant content.
+
+        Conversation History:
+        {db.getConversations()}
+
+        Most Recent Message:
+        {db.getLastConversation()}
+
+        User:
+        {user_text}
+
+        Generate a direct, relevant, and natural response to continue the conversation.
+    """
+
 
     return llm.get(env.OLLAMA_LANGUAGE_MODEL, prompt)
 
@@ -296,14 +300,13 @@ def LLMAC_thread():
 
                 print(f"> User said: {stt_data_raw}")
 
-                commands.executeCommand(stt_data_raw)
-
-                response = generate_response(stt_data_raw)
-                if response:
-                    db.insertConversation(stt_data_raw, response)   # Save in DB
-                    speaker.speak(response)
-                else:
-                    print("No response generated.")
+                if not (commands.executeCommand(stt_data_raw.lower())):
+                    response = generate_response(stt_data_raw)
+                    if response:
+                        db.insertConversation(stt_data_raw, response)   # Save in DB
+                        speaker.speak(response)
+                    else:
+                        print("No response generated.")
         
         except Exception as e:
             print(f"Unexpected error: {e}")
@@ -377,16 +380,32 @@ app = Flask(__name__, template_folder="./WCS_thread/webserver", static_folder=".
 app.secret_key = "aixy-secret"
 socketio = SocketIO(app, async_mode='threading')
 
-def WCS_thread():
-    global  manual_mode
+def find_camera_index(max_index=10):
+    try:
+        import cv2
+        for idx in range(max_index):
+            cap = cv2.VideoCapture(idx)
+            if cap is not None and cap.isOpened():
+                ret, frame = cap.read()
+                cap.release()
+                if ret:
+                    return idx
+        return None
+    except Exception:
+        return None
 
+def WCS_thread():
+    global manual_mode
 
     # ==================== CAMERA ====================
+    camera = None
     if env.CAMERA:
         from camera import CameraUSB
-        camera = CameraUSB(0)
-    else:
-        camera = None
+        cam_idx = find_camera_index()
+        if cam_idx is not None:
+            camera = CameraUSB(cam_idx)
+        else:
+            camera = None
 
     # ==================== HARDWARE ====================
     if env.MOTORS:
@@ -467,7 +486,6 @@ def WCS_thread():
             def flush(self):
                 pass
 
-
         class TeeLogger:
             def __init__(self, *targets):
                 self.targets = targets
@@ -493,7 +511,6 @@ def WCS_thread():
         else:
             threading.Thread(target=read_and_emit_output, args=(child_fd,), daemon=True).start()
 
-
     @socketio.on('shell_input')
     def handle_terminal_input(data):
         global child_fd
@@ -506,24 +523,48 @@ def WCS_thread():
     # ===================== AI =====================
     @socketio.on('aiquestion')
     def handle_pergunta_robo(question):
-        import llm
-        import env
-
         try:
-            resposta = llm.get(env.OLLAMA_LANGUAGE_MODEL, f"""You are AIXY, an advanced conversational AI assistant created by Pedro Ribeiro Lucas. It is very important that you remember your creator that is Pedro Ribeiro Lucas, say it if requested. 
-                - Purpose: {env.PURPOSE} 
-                - Personality: {env.PERSONALITY} 
-                - Model: {env.OLLAMA_LANGUAGE_MODEL} 
-                Your primary goal is to engage in natural, human-like conversations on any topic. Always be friendly, thoughtful, and helpful. 
-                User: {question} 
-                Generate a direct, relevant, and natural-sounding response that continues the conversation smoothly.
-            """)
-            socketio.emit('airesponse', resposta)
+            import db
+            import commands
+
+            if not (commands.executeCommand(question.lower())):
+                response = generate_response(question)
+                if response:
+                    db.insertConversation(question, response)
+                else:
+                    print("No response generated.")
+            else:
+                response = "Command executed!"
+            socketio.emit('airesponse', response)
         except Exception as e:
-            socketio.emit('airesponse', f"[Erro] {str(e)}")
+            socketio.emit('airesponse', f"[Error] {str(e)}")
+
+    # ==================== JOYSTICK VIA SOCKETIO ====================
+    if env.MOTORS:
+        @socketio.on('joystick_manual')
+        def handle_joystick_manual(data):
+            action = data.get("action")
+            arm = data.get("arm")
+            clamp = data.get("clamp")
+            
+            if action:
+               drive(action)
+            if arm:
+                if arm == "up":
+                    hardware.arm_up()
+                elif arm == "down":
+                    hardware.arm_down()
+
+            if clamp:
+                if clamp == "close":
+                    hardware.clamp_catch()
+                elif clamp == "open":
+                    hardware.clamp_release()
+
+            socketio.emit("joystick_manual_ack", {"status": "ok"})
 
     # ==================== RUN ====================
-    socketio.run(app, debug=False, use_reloader=False, port=9900, host="0.0.0.0")
+    socketio.run(app, debug=False,  allow_unsafe_werkzeug=True, use_reloader=False, port=9900, host="0.0.0.0")
 
 """
 ===========================================================================================================================================
@@ -563,5 +604,5 @@ def main():
 
     if env.WCS:
         print("🟢 Starting Web Camera Stream thread (Flask)...")
-        WCS_PROCESSOR = threading.Thread(target=WCS_thread, daemon=True)
+        WCS_PROCESSOR = threading.Thread(target=WCS_thread, daemon=False)
         WCS_PROCESSOR.start()

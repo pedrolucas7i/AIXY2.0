@@ -33,7 +33,7 @@ def speak(message):
             temp_path = tmp_file.name
 
         # Save TTS output to temp file
-        tts = gTTS(text=message, lang='pt', slow=False)
+        tts = gTTS(text=message, lang='en', slow=False)
         tts.save(temp_path)
 
         # Play the temporary audio file

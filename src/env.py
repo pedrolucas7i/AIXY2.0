@@ -21,13 +21,13 @@ from dotenv import load_dotenv
 import os
 
 """ Large Vision Model Automonous Drive """
-LVMAD = False
+LVMAD = True
 
 """ Large Languade Model Autonomous Conversations """
 LLMAC = True
 
 """ Obstacle Avoidance """
-OA = False
+OA = True
 
 """ Switch Between Modes """
 SBM = False
@@ -48,7 +48,7 @@ ONLY_MANUAL_CONTROL = False
 COMMANDS = True
 
 """ Motors """
-MOTORS = False
+MOTORS = True
 
 """ Camera """
 CAMERA = True
@@ -76,7 +76,6 @@ COMMANDS = [
     'analyze object',
     'say',
     'flash lights',
-    'listen for command',
     'reboot system',
     'turn the light on',
     'turn the light off'
@@ -98,7 +97,6 @@ RESPONSES = [
     'analyzing object...',
     'saying message',
     'flashing lights',
-    'listening...',
     'rebooting system...',
     'light turned on',
     'light turned off'
