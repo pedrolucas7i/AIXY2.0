@@ -206,6 +206,7 @@ def manualControl():
 def LVMAD_thread(thingToSearch=None, additionalPrompt=None):
     import time
     import traceback
+    decide = None
     try:
         if env.MOTORS:
             import hardware
