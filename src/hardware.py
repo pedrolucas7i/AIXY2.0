@@ -130,6 +130,18 @@ def clamp_release():
     if response:
         time.sleep(0.1)
 
+# === ULTRASONIC SENSOR ===
+def get_distance():
+    response = send_command("ultrassonic_data")
+    if response and response.startswith("DIST:"):
+        try:
+            return float(response.split(":")[1].strip())
+        except ValueError:
+            print(f"Invalid distance response: {response}")
+    else:
+        print("No valid distance received.")
+    return None
+
 # === LIGHT CONTROL ===
 def ligthON():
     response = send_command("light_on")
