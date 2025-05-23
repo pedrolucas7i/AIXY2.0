@@ -17,15 +17,15 @@ def insertConversation(said, response):
     with sqlite3.connect('aixy.db') as conn:
         cursor = conn.cursor()
         cursor.execute('''
-            INSERT INTO conversations (said)
-            VALUES (?)
-        ''', said)
+            INSERT INTO conversations (said, response)
+            VALUES (?, ?)
+        ''', (said, response))
         conn.commit()
 
 def getConversations():
     with sqlite3.connect('aixy.db') as conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT said, response, timestamp FROM conversations")
+        cursor.execute("SELECT said FROM conversations")
         conversations = cursor.fetchall()
     return conversations
 
@@ -33,7 +33,7 @@ def getLastConversation():
     with sqlite3.connect('aixy.db') as conn:
         cursor = conn.cursor()
         cursor.execute("""
-            SELECT said, response, timestamp 
+            SELECT said
             FROM conversations 
             ORDER BY timestamp DESC 
             LIMIT 1
