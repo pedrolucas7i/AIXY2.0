@@ -90,7 +90,6 @@ def drive_release():
 def drive_stop():
     response = send_command("drive_stop")
     print(response)
-    if response:
 
 # === SERVO CONTROL ===
 def system_catch():
