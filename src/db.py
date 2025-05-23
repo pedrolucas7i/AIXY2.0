@@ -17,9 +17,9 @@ def insertConversation(said, response):
     with sqlite3.connect('aixy.db') as conn:
         cursor = conn.cursor()
         cursor.execute('''
-            INSERT INTO conversations (said, response)
-            VALUES (?, ?)
-        ''', (said, response))
+            INSERT INTO conversations (said)
+            VALUES (?)
+        ''', (said))
         conn.commit()
 
 def getConversations():
