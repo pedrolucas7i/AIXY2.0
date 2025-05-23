@@ -19,7 +19,7 @@ def insertConversation(said, response):
         cursor.execute('''
             INSERT INTO conversations (said)
             VALUES (?)
-        ''', (said))
+        ''', said)
         conn.commit()
 
 def getConversations():
