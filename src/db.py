@@ -33,7 +33,7 @@ def getLastConversation():
     with sqlite3.connect('aixy.db') as conn:
         cursor = conn.cursor()
         cursor.execute("""
-            SELECT said
+            SELECT said, response
             FROM conversations 
             ORDER BY timestamp DESC 
             LIMIT 1

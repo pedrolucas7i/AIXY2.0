@@ -228,6 +228,13 @@ def LVMAD_thread(thingToSearch=None, additionalPrompt=None):
                         hardware.drive_backward()
                         hardware.drive_release()
                         hardware.drive_left()
+                else:
+                    if thingToSearch == None:
+                        decision = decide().strip().strip("'").lower()
+                    else:
+                        decision = find(thingToSearch).strip().strip("'").lower()
+                    
+                    drive(decision)
             else:
                 if thingToSearch == None:
                     decision = decide().strip().strip("'").lower()
