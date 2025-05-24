@@ -67,6 +67,7 @@ OLLAMA_VISUAL_DECISION_PROMPT = os.getenv('OLLAMA_VISUAL_DECISION_PROMPT')
 OLLAMA_USER_ADDITIONAL_PROMPT = os.getenv('OLLAMA_USER_ADDITIONAL_PROMPT')
 OLLAMA_HOST = os.getenv('OLLAMA_HOST')
 WHISPER_HOST = os.getenv('WHISPER_HOST')
+TTS_HOST = os.getenv('TTS_HOST')
 
 PERSONALITY = (lambda f: f.read())(open("personality.info", "r", encoding="utf-8"))
 PURPOSE = (lambda f: f.read())(open("purpose.info", "r", encoding="utf-8"))

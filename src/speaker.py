@@ -16,32 +16,39 @@
 ===============================================================================================================================================================
 """
 
-from gtts import gTTS
+import requests
 from playsound import playsound
 import tempfile
 import os
-import db
+import env
 
-# Define the speech function that uses gTTS
+# Define the speech function using custom TTS server
 def speak(message):
     print(f"Converting message to speech: {message}\n")
     try:
-        print("Converting message to speech\n")
+        print("Sending message to TTS server...\n")
         
-        # Create a temporary file for the speech audio
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_file:
+        # Send POST request to TTS server
+        response = requests.post(
+            env.TTS_HOST,
+            headers={"Content-Type": "application/json"},
+            json={"text": message}
+        )
+        
+        if response.status_code != 200:
+            raise Exception(f"TTS server returned error: {response.status_code} - {response.text}")
+        
+        # Create temporary file for WAV audio
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp_file:
+            tmp_file.write(response.content)
             temp_path = tmp_file.name
 
-        # Save TTS output to temp file
-        tts = gTTS(text=message, lang='en', slow=False)
-        tts.save(temp_path)
-
-        # Play the temporary audio file
+        # Play the audio
         playsound(temp_path)
-        
-        # Clean up temporary file after playback
-        os.remove(temp_path)
 
+        # Clean up
+        os.remove(temp_path)
         print("Speech playback completed\n")
+
     except Exception as e:
         print(f"An error occurred during speech playback: {str(e)}\n")
