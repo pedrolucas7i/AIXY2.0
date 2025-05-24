@@ -233,6 +233,10 @@ def LVMAD_thread(thingToSearch=None, additionalPrompt=None):
                     decision = decide().strip().strip("'").lower()
                 else:
                     decision = find(thingToSearch).strip().strip("'").lower()
+                
+                drive(decision)
+
+            time.sleep(0.1)
 
     except Exception as e:
         print("Erro na thread LVMAD_thread:")
