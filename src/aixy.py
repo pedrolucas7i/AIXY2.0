@@ -277,7 +277,6 @@ def generate_response(user_text):
     prompt += F"- Purpose: {env.PURPOSE}\n"
     prompt += F"- Personality: {env.PERSONALITY}\n"
     prompt += "Your main goal is to maintain natural, friendly, and helpful conversations about any topic.\n\n"
-    prompt += "IMPORTANT: ALWAYS RESPOND ONLY IN PORTUGUESE. Even if the user writes in another language, your response must be exclusively in Portuguese.\n\n"
     prompt += "Instructions:\n"
     prompt += "- Focus mainly on the user's last message and the immediately previous conversation to generate your response.\n"
     prompt += "- Give highest priority to the most recent user input and recent context; use older history only if directly relevant.\n"
