@@ -25,7 +25,7 @@ def insertConversation(said, response):
 def getConversations():
     with sqlite3.connect('aixy.db') as conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT said FROM conversations")
+        cursor.execute("SELECT said, response FROM conversations ORDER BY timestamp ASC")
         conversations = cursor.fetchall()
     return conversations
 
@@ -33,12 +33,24 @@ def getLastConversation():
     with sqlite3.connect('aixy.db') as conn:
         cursor = conn.cursor()
         cursor.execute("""
-            SELECT said, response
+            SELECT said
             FROM conversations 
             ORDER BY timestamp DESC 
             LIMIT 1
         """)
         conversation = cursor.fetchone()
-    return conversation if conversation else ""
+    return conversation[0] if conversation else ""
+
+def getLastAssistentConversation():
+    with sqlite3.connect('aixy.db') as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT response
+            FROM conversations 
+            ORDER BY timestamp DESC 
+            LIMIT 1
+        """)
+        conversation = cursor.fetchone()
+    return conversation[0] if conversation else ""
 
 create_tables()
