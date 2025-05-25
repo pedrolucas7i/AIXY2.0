@@ -16,39 +16,38 @@
 ===============================================================================================================================================================
 """
 
-import requests
-from playsound import playsound
+import subprocess
 import tempfile
 import os
-import env
+from playsound import playsound
 
-# Define the speech function using custom TTS server
-def speak(message):
+def speak(message, voice="en-US-AvaMultilingualNeural"):
     print(f"Converting message to speech: {message}\n")
     try:
-        print("Sending message to TTS server...\n")
-        
-        # Send POST request to TTS server
-        response = requests.post(
-            env.TTS_HOST,
-            headers={"Content-Type": "application/json"},
-            json={"text": message}
-        )
-        
-        if response.status_code != 200:
-            raise Exception(f"TTS server returned error: {response.status_code} - {response.text}")
-        
-        # Create temporary file for WAV audio
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp_file:
-            tmp_file.write(response.content)
+        # Criar arquivo temporário
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_file:
             temp_path = tmp_file.name
 
-        # Play the audio
+        print("Generating speech with edge-tts CLI...\n")
+        # Montar o comando
+        command = [
+            "edge-tts",
+            "--text", message,
+            "--voice", voice,
+            "--write-media", temp_path
+        ]
+
+        # Chamar o edge-tts via subprocess
+        subprocess.run(command, check=True)
+
+        # Reproduzir o áudio
         playsound(temp_path)
 
-        # Clean up
+        # Limpar o arquivo temporário
         os.remove(temp_path)
         print("Speech playback completed\n")
 
+    except subprocess.CalledProcessError as e:
+        print(f"edge-tts failed with error: {e}\n")
     except Exception as e:
         print(f"An error occurred during speech playback: {str(e)}\n")
