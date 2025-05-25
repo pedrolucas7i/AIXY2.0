@@ -138,16 +138,17 @@ def get_distance():
             return float(response.split(":")[1].strip())
         except ValueError:
             print(f"Invalid distance response: {response}")
+            return None
     else:
         print("No valid distance received.")
-    return None
+        return None
 
 # === LIGHT CONTROL ===
-def ligthON():
+def lightON():
     response = send_command("light_on")
     print(response)
 
-def ligthOFF():
+def lightOFF():
     response = send_command("light_off")
     print(response)
 

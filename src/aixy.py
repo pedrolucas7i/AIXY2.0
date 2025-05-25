@@ -216,9 +216,11 @@ def manualControl():
         pygame.quit()
 
 
-def LVMAD_thread(thingToSearch=None, additionalPrompt=None):
+def LVMAD_thread(thingToSearch=None):
+    """Main thread for Large Vision Model Autonomous Drive."""
     import time
     import traceback
+
     try:
         if env.MOTORS:
             import hardware
@@ -229,30 +231,43 @@ def LVMAD_thread(thingToSearch=None, additionalPrompt=None):
                 continue
 
             if env.OA:
-                distance = hardware.get_distance()
-                if distance:
-                    if distance > 8:
-                        if thingToSearch is None:
-                            decision = decide().strip().strip("'").lower()
-                        else:
-                            decision = find(thingToSearch).strip().strip("'").lower()
-                        drive(decision)
-                    else:
-                        hardware.drive_backward()
-                        hardware.drive_release()
-                        hardware.drive_left()
+                handle_obstacle_avoidance(thingToSearch)
             else:
-                if thingToSearch == None:
-                    decision = decide().strip().strip("'").lower()
-                else:
-                    decision = find(thingToSearch).strip().strip("'").lower()
-                drive(decision)
+                handle_decision(thingToSearch)
 
             time.sleep(0.1)
 
     except Exception as e:
         print("Erro na thread LVMAD_thread:")
-        traceback.print_exc()   
+        traceback.print_exc()
+
+
+def handle_obstacle_avoidance(thingToSearch):
+    """Handle obstacle avoidance logic."""
+    import hardware
+
+    distance = hardware.get_distance()
+    if distance and distance > 8:
+        decision = make_decision(thingToSearch)
+        drive(decision)
+    else:
+        hardware.drive_backward()
+        hardware.drive_release()
+        hardware.drive_left()
+
+
+def handle_decision(thingToSearch):
+    """Handle decision-making logic."""
+    decision = make_decision(thingToSearch)
+    drive(decision)
+
+
+def make_decision(thingToSearch):
+    """Make a decision based on the environment."""
+    if thingToSearch is None:
+        return decide().strip().strip("'").lower()
+    else:
+        return find(thingToSearch).strip().strip("'").lower()
 
 """
 ===========================================================================================================================================
