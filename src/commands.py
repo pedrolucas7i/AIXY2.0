@@ -29,17 +29,17 @@ def stop_now():
 
 def light_on():
     import hardware
-    hardware.ligthON()
+    hardware.lightON()
     speaker.speak(env.RESPONSES[5])
 
 def light_off():
     import hardware
-    hardware.ligthOFF()
+    hardware.lightOFF()
     speaker.speak(env.RESPONSES[6])
 
 def flash_light():
     import hardware
-    hardware.flasklight()
+    hardware.flashlight()
     speaker.speak(env.RESPONSES[3])
 
 def catch_object():
