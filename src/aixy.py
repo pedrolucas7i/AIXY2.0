@@ -247,6 +247,7 @@ def handle_obstacle_avoidance(thingToSearch):
     import hardware
 
     distance = hardware.get_distance()
+    print(f"Distance to obstacle: {distance} cm")
     if distance and distance > 8:
         decision = make_decision(thingToSearch)
         drive(decision)
