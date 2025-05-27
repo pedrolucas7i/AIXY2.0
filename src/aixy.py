@@ -263,9 +263,9 @@ def handle_decision(thingToSearch):
 def make_decision(thingToSearch):
     """Make a decision based on the environment."""
     if thingToSearch is None:
-        return decide().strip().strip("'").lower()
+        return decide()
     else:
-        return find(thingToSearch).strip().strip("'").lower()
+        return find(thingToSearch)
 
 """
 ===========================================================================================================================================
