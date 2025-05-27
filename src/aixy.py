@@ -46,33 +46,37 @@ def decide():
         camera = Camera()
     
     decision = llm.get(
-        env.OLLAMA_VISION_MODEL, """<|begin_of_text|>
-        <|start_header_id|>system<|end_header_id|>
-        You are an onboard visual navigation system for a mobile robot. Your task is to make a single movement decision based on the captured image from the robot's camera.
+        env.OLLAMA_VISION_MODEL,
+        f"""
+    You are the visual navigation module of a mobile robot. Based solely on the input image from the robot’s camera, you must select the safest and most appropriate movement direction.
 
-        IMPORTANT:
-        Respond with ONLY one of the following words — without punctuation, explanations, or any extra text:
-        **forward**, **backward**, **left**, **right**
+    ⚠️ Output Requirements:
+    - Respond with only ONE of the following lowercase words:
+    - forward
+    - left
+    - right
+    - backward
+    - Do not include punctuation, explanations, or any additional text.
 
-        Decision Rules:
-        - Avoid collisions: never choose a direction that leads directly into a visible obstacle.
-        - Obstacles include any physical object visibly blocking the path.
-        - Prioritize safety over efficiency.
-        - Avoid staying still: move forward, left, or right whenever it is safe to do so.
-        - Use 'backward' only if no other direction is safe, since the rear camera has limited visibility.
-        - When possible, prefer 'left' to maneuver around obstacles.
-        - Speed is controlled by another system — do not include speed-related instructions.
-        <|eot_id|>
-        <|start_header_id|>user<|end_header_id|>
-        Analyze the received image and decide the single best movement action for the mobile robot based on the visual environment. Respond only with one word: forward, backward, left, or right.
-        <|eot_id|>
-        <|start_header_id|>assistant<|end_header_id|>
-        """,
+    🎯 Decision Logic:
+    - If the path ahead is clear, prefer 'forward'.
+    - If forward is blocked, prefer 'left'.
+    - If left is blocked too, try 'right'.
+    - Only use 'backward' as a last resort when no other directions are safe.
+    - Avoid collisions at all costs — never suggest a move toward an obstacle.
+
+    Your sole output must be one of the four valid options listed above.
+    """,
         camera.get_frame() if env.CAMERA else None
-    ).lower()
+    ).strip().lower()
+
     
-    print(f"Decided: {decision}")
-    return decision
+    if decision not in ['forward', 'backward', 'left', 'right', 'finded']:
+        print("Resposta inesperada:", decision)
+        return None
+    else:
+        print(f"Decided: {decision}")
+        return decision
 
 
 def find(thing):
@@ -88,31 +92,30 @@ def find(thing):
         camera = Camera()
 
     decision = llm.get(
-        env.OLLAMA_VISION_MODEL, F"""<|begin_of_text|>
-        <|start_header_id|>system<|end_header_id|>
-        You are an onboard visual navigation system for a mobile robot tasked with locating and reaching the object called '{thing}'.
+        env.OLLAMA_VISION_MODEL,
+        f"""
+        You are a vision-based object-seeking module onboard a mobile robot. Your task is to visually locate and approach the object described as '{thing}' using the camera feed.
 
-        IMPORTANT:
-        Respond with ONLY one word, no explanations or additional text:
-        - 'finded' (when the object '{thing}' is clearly identified and the robot is within 10 centimeters)
-        - or one of these movement commands: 'backward', 'forward', 'left', 'right'
+        ⚠️ Output Rules:
+        - Reply with ONLY ONE of the following lowercase words:
+        - forward
+        - left
+        - right
+        - backward
+        - finded (only if the object is clearly visible and within 10 centimeters)
 
-        Rules:
-        - Prioritize moves that bring the robot closer to the object '{thing}'.
-        - When the object is visually confirmed and estimated within 10 cm, respond ONLY with 'finded'.
-        - Avoid collisions: do NOT select directions leading directly into visible obstacles.
-        - Keep moving: do NOT stop unless you return 'finded'.
-        - Use 'backward' only if no other safe option exists.
-        - Default to 'left' when avoiding obstacles.
-        - Speed is managed separately; do NOT include speed instructions here.
-        <|eot_id|>
-        <|start_header_id|>user<|end_header_id|>
-        Analyze the received image and determine the best single action for the robot to find and reach '{thing}'. Respond with only one word as specified.
-        <|eot_id|>
-        <|start_header_id|>assistant<|end_header_id|>
+        🚀 Behavior Guidelines:
+        - Analyze the visual scene to determine where the object '{thing}' is located.
+        - If the object is in view but distant, choose a direction that moves the robot closer.
+        - If the object is not visible, explore using 'left', 'right', or 'forward'.
+        - Use 'backward' only if no other direction is safe or the robot is trapped.
+        - Respond with 'finded' only if the object is directly in front of the robot and close enough to grab or interact with.
+        - Do NOT output any explanations, punctuation, or additional text.
+
+        Respond with a single valid command word, and nothing else.
         """,
         camera.get_frame() if env.CAMERA else None
-    ).lower()
+    ).strip().lower()
 
     
     print(f"Decided: {decision}")
