@@ -29,7 +29,7 @@
 
 #define TRIGGER_PIN  11                               // Arduino pin tied to trigger pin on the ultrasonic sensor.
 #define ECHO_PIN     10                               // Arduino pin tied to echo pin on the ultrasonic sensor.
-#define MAX_DISTANCE 350                              // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
+#define MAX_DISTANCE 500                              // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
 
 Servo arm;
 Servo clamp;
@@ -105,8 +105,8 @@ void loop() {
     } else {
       Serial.println("COMMAND NOT FOUND!");
     }
-    avoid_obstacle();
   }
+  avoid_obstacle();
 }
 
 
@@ -223,7 +223,7 @@ void light_off() {
 
 void avoid_obstacle() {
   float distance = ultrassonic_data();               // Get the distance from the ultrasonic sensor
-  if (distance < 10) {                               // If an obstacle is detected within 10 cm
+  if ((distance < 10) && (distance != 0)) {                               // If an obstacle is detected within 10 cm
     drive_backward();                                // Move backward
     delay(500);                                      // Wait for half a second
     drive_left();                                    // Turn left to avoid the obstacle
