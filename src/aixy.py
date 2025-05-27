@@ -608,12 +608,12 @@ def main():
 
         if env.LVMAD:
             print("🟢 Starting Large Vision Model Autonomous Drive thread...")
-            LVMAD_PROCESSOR = threading.Thread(target=LVMAD_thread, args=(None), daemon=False)
+            LVMAD_PROCESSOR = threading.Thread(target=LVMAD_thread, daemon=False)
             LVMAD_PROCESSOR.start()
 
 
     if env.LLMAC:
-        print("🟢 Starting Large Languade Model Autonomous Conversation thread...")
+        print("🟢 Starting Large Language Model Autonomous Conversation thread...")
         LLMAC_PROCESSOR = threading.Thread(target=LLMAC_thread, daemon=False)
         LLMAC_PROCESSOR.start()
     
