@@ -230,10 +230,7 @@ def LVMAD_thread(thingToSearch=None):
                 manualControl()
                 continue
 
-            if env.OA:
-                handle_obstacle_avoidance(thingToSearch)
-            else:
-                handle_decision(thingToSearch)
+            handle_decision(thingToSearch)
 
             time.sleep(0.1)
 

@@ -105,6 +105,7 @@ void loop() {
     } else {
       Serial.println("COMMAND NOT FOUND!");
     }
+    avoid_obstacle();
   }
 }
 
@@ -117,6 +118,7 @@ void drive_forward() {
   digitalWrite(PIN_MOTOR1_IN1, HIGH);
   digitalWrite(PIN_MOTOR2_IN1, HIGH);
   delay(300);
+  drive_release();  // Release motors after driving forward
 }
 
 void drive_backward() {
@@ -125,6 +127,7 @@ void drive_backward() {
   analogWrite(PIN_MOTOR1_IN2, backward_pwm);
   analogWrite(PIN_MOTOR2_IN2, backward_pwm);
   delay(300);
+  drive_release();  // Release motors after driving backward
 }
 
 void drive_right() {
@@ -133,6 +136,7 @@ void drive_right() {
   digitalWrite(PIN_MOTOR1_IN2, HIGH);
   digitalWrite(PIN_MOTOR2_IN2, LOW);
   delay(300);
+  drive_release();  // Release motors after driving right
 }
 
 void drive_left() {
@@ -141,6 +145,7 @@ void drive_left() {
   digitalWrite(PIN_MOTOR1_IN2, LOW);
   digitalWrite(PIN_MOTOR2_IN2, HIGH);
   delay(300);
+  drive_release();  // Release motors after driving left
 }
 
 void drive_release() {
@@ -211,4 +216,17 @@ void light_on() {
 
 void light_off() {
   digitalWrite(13, LOW);
+}
+
+
+// Obstacule Avoidance Function
+
+void avoid_obstacle() {
+  float distance = ultrassonic_data();               // Get the distance from the ultrasonic sensor
+  if (distance < 10) {                               // If an obstacle is detected within 10 cm
+    drive_backward();                                // Move backward
+    delay(500);                                      // Wait for half a second
+    drive_left();                                    // Turn left to avoid the obstacle
+    delay(500);                                      // Wait for half a second
+  }
 }
