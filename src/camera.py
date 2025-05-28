@@ -21,8 +21,9 @@ import cv2
 import numpy as np
 import time
 
-class Camera:
 
+class Camera:
+    """Camera class for Raspberry Pi Camera using Picamera2."""
     _instance = None
 
     def __new__(cls):
@@ -33,6 +34,7 @@ class Camera:
         return cls._instance
 
     def _init_camera(self):
+        from picamera2 import Picamera2
         self.picam2 = Picamera2()
         self.picam2.configure(self.picam2.create_still_configuration(main={'size': (224, 224)}))
         self.picam2.start()
@@ -67,21 +69,33 @@ class Camera:
 
 
 class CameraUSB:
+    """Camera class for USB webcams using OpenCV."""
     _instance = None
 
-    def __new__(cls, camera_index=1):
+    def __new__(cls):
         if cls._instance is None:
             cls._instance = super(CameraUSB, cls).__new__(cls)
-            cls._instance._init_camera(camera_index)
+            cls._instance._init_camera()
         return cls._instance
 
-    def _init_camera(self, camera_index):
-        self.cap = cv2.VideoCapture(camera_index)
+    def _init_camera(self):
+        # Try camera indices from 0 to 10
+        self.cap = None
+        for index in range(10):
+            print(f"Trying USB camera at index {index}...")
+            cap = cv2.VideoCapture(index)
+            if cap.isOpened():
+                print(f"✅ USB camera found at index {index}")
+                self.cap = cap
+                break
+            else:
+                cap.release()
+
+        if self.cap is None or not self.cap.isOpened():
+            raise RuntimeError("❌ Error: No USB camera available (tried indices 0 to 2).")
+
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 224)
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 224)
-
-        if not self.cap.isOpened():
-            raise RuntimeError(f"Error opening USB camera at index {camera_index}")
 
         self.frame = None
         self.lock = threading.Lock()
