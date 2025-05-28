@@ -221,12 +221,23 @@ void light_off() {
 
 // Obstacule Avoidance Function
 
+unsigned long lastActionTime = 0;
+int avoidState = 0;
+
 void avoid_obstacle() {
-  float distance = ultrassonic_data();               // Get the distance from the ultrasonic sensor
-  if ((distance < 10) && (distance != 0)) {                               // If an obstacle is detected within 10 cm
-    drive_backward();                                // Move backward
-    delay(500);                                      // Wait for half a second
-    drive_left();                                    // Turn left to avoid the obstacle
-    delay(500);                                      // Wait for half a second
+  float distance = ultrassonic_data();
+  unsigned long now = millis();
+
+  if ((distance < 10) && (distance != 0) && avoidState == 0) {
+    drive_backward();
+    lastActionTime = now;
+    avoidState = 1;
+  } else if (avoidState == 1 && (now - lastActionTime > 500)) {
+    drive_left();
+    lastActionTime = now;
+    avoidState = 2;
+  } else if (avoidState == 2 && (now - lastActionTime > 500)) {
+    drive_release();
+    avoidState = 0;
   }
 }
