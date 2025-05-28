@@ -128,15 +128,15 @@ def drive(direction):
     import hardware
     from time import sleep
 
-    if 'forward' in direction:
+    if direction.contains('forward'):
         hardware.drive_forward()
-    elif 'backward' in direction:
+    elif direction.contains('backward'):
         hardware.drive_backward()
-    elif 'left' in direction:
+    elif direction.contains('left'):
         hardware.drive_left()
-    elif 'right' in direction:
+    elif direction.contains('right'):
         hardware.drive_right()
-    elif 'finded' in direction:
+    elif direction.contains('finded'):
         hardware.clamp_catch()
     hardware.drive_release()
 
