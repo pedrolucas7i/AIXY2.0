@@ -50,7 +50,6 @@ def send_command(cmd):
             full_cmd = f"{cmd}\n"
             ser.write(full_cmd.encode('utf-8'))  # Encode properly to bytes
             ser.flush()  # Force immediate transmission
-            time.sleep(0.05)  # Give microcontroller time to process
 
             while True:
                 response = ser.readline().decode('utf-8', errors='replace').strip()
@@ -68,86 +67,90 @@ def send_command(cmd):
 
 # === MOTOR CONTROL ===
 def drive_forward():
-    print(send_command("drive_forward"))
+    response = send_command("drive_forward")
+    print(response)
 
 def drive_backward():
-    print(send_command("drive_backward"))
+    response = send_command("drive_backward")
+    print(response)
 
 def drive_left():
-    print(send_command("drive_left"))
+    response = send_command("drive_left")
+    print(response)
 
 def drive_right():
-    print(send_command("drive_right"))
+    response = send_command("drive_right")
+    print(response)
 
 def drive_release():
-    print(send_command("drive_release"))
+    response = send_command("drive_release")
+    print(response)
 
 def drive_stop():
-    print(send_command("drive_stop"))
-    time.sleep(30)
+    response = send_command("drive_stop")
+    print(response)
 
+# === SERVO CONTROL ===
+def system_catch():
+    if send_command("arm_up"):
+        time.sleep(0.1)
+        if send_command("clamp_catch"):
+            time.sleep(0.1)
+            send_command("arm_down")
+
+def system_release():
+    if send_command("arm_up"):
+        time.sleep(0.1)
+        if send_command("clamp_release"):
+            time.sleep(0.1)
+            send_command("arm_down")
+
+def arm_down():
+    response = send_command("arm_down")
+    print(response)
+    if response:
+        time.sleep(0.1)
+
+def arm_up():
+    response = send_command("arm_up")
+    print(response)
+    if response:
+        time.sleep(0.1)
+
+def clamp_catch():
+    response = send_command("clamp_catch")
+    print(response)
+    if response:
+        time.sleep(0.1)
+
+def clamp_release():
+    response = send_command("clamp_release")
+    print(response)
+    if response:
+        time.sleep(0.1)
 
 # === ULTRASONIC SENSOR ===
 def get_distance():
-    """
-    Requests distance from ultrasonic sensor and parses numeric value.
-
-    Returns:
-        float or None: Distance in cm if valid, None if response malformed.
-    """
     response = send_command("ultrassonic_data")
     if response and response.startswith("DIST:"):
         try:
             return float(response.split(":")[1].strip())
         except ValueError:
             print(f"Invalid distance response: {response}")
-    return None
-
-
-# === SERVO CONTROL ===
-def system_catch():
-    """
-    Lowers arm, closes clamp, raises arm — with command acknowledgment.
-    """
-    send_command("arm_up")
-    time.sleep(0.1)
-    send_command("clamp_catch")
-    time.sleep(0.1)
-    send_command("arm_down")
-
-def system_release():
-    """
-    Lowers arm, opens clamp, raises arm — with command acknowledgment.
-    """
-    send_command("arm_up")
-    time.sleep(0.1)
-    send_command("clamp_release")
-    time.sleep(0.1)
-    send_command("arm_down")
-
-def arm_down():
-    send_command("arm_down")
-    time.sleep(0.1)
-
-def arm_up():
-    send_command("arm_up")
-    time.sleep(0.1)
-
-def clamp_catch():
-    send_command("clamp_catch")
-    time.sleep(0.1)
-
-def clamp_release():
-    send_command("clamp_release")
-    time.sleep(0.1)
+            return None
+    else:
+        print("No valid distance received.")
+        return None
 
 # === LIGHT CONTROL ===
-
 def lightON():
-    send_command("light_on")
+    response = send_command("light_on")
+    print(response)
 
 def lightOFF():
-    send_command("light_off")
+    response = send_command("light_off")
+    print(response)
 
 def flash_light():
-    send_command("flash_light")
+    response = send_command("flash_light")
+    print(response)
