@@ -65,7 +65,7 @@ def decide():
         Provide only one word as a response, with no additional explanations.
         """,
         camera.get_frame() if env.CAMERA else None
-    ).lower()
+    ).lower().strip()
 
     
     if decision not in ['forward', 'backward', 'left', 'right', 'finded']:
@@ -117,7 +117,7 @@ def find(thing):
 
         """,
         camera.get_frame() if env.CAMERA else None
-    ).lower()
+    ).lower().strip()
 
     
     print(f"Decided: {decision}")
