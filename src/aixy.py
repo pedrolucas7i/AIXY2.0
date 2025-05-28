@@ -52,7 +52,7 @@ def decide():
 
         'backward' (Try not use this, except in danger cases)
         'forward'
-        'left' (Default decision to avoid colisions and obstacules)
+        'left' (Default decision to avoid colisions and obstacles)
         'right'
 
         Decide based on the following principles:
@@ -84,7 +84,7 @@ def find(thing):
         camera = Camera()
 
     decision = llm.get(
-        env.OLLAMA_VISION_MODEL, F"""
+        env.OLLAMA_VISION_MODEL, f"""
         Analyze the received image and determine the best action for a mobile robot to locate and reach the object called: '{thing}'. Once the object is clearly identified and the robot is within 10 centimeters of it, respond only with the word:
 
         'finded'
@@ -93,7 +93,7 @@ def find(thing):
 
         'backward' (Try not use this, except in danger cases)
         'forward'
-        'left' (Default decision to avoid colisions and obstacules)
+        'left' (Default decision to avoid collisions and obstacles)
         'right'
 
         Decision principles:
@@ -109,19 +109,16 @@ def find(thing):
         Adjust speed: In open areas, prefer faster speeds; in tight or cluttered areas, go slower.
 
         One-word output only: Return only the chosen word — no explanations or additional text.
-
         """,
         camera.get_frame() if env.CAMERA else None
     ).lower().strip()
 
-    
     print(f"Decided: {decision}")
     return decision
 
 
 def drive(direction):
     import hardware
-    from time import sleep
 
     if 'forward' in direction:
         hardware.drive_forward()
@@ -151,25 +148,22 @@ def manualControl():
     clock = pygame.time.Clock()
     controller = xbox360_controller.Controller()
 
-    prev_command = None  # Store last command sent to avoid repeats
+    prev_command = None
 
     try:
         while True:
-            pygame.event.pump()  # Update internal pygame state
+            pygame.event.pump()
 
-            # Get joystick axes and pad buttons
             ax, y = controller.get_left_stick()
             x, by = controller.get_right_stick()
             up, right, down, left = controller.get_pad()
 
-            A, B, X, Y, LEFT_BUMP, RIGHT_BUMP, BACK, START, NONE, LEFT_STICK_BTN, RIGHT_STICK_BTN = controller.get_buttons()
+            A, B, X, Y, LB, RB, BACK, START, _, LSB, RSB = controller.get_buttons()
 
-            # Deadzone filter
             threshold = 0.2
             x = x if abs(x) > threshold else 0
             y = y if abs(y) > threshold else 0
 
-            # Decide movement command
             if x == 0 and y == 0:
                 command = "drive_release"
             elif abs(x) > abs(y):
@@ -182,33 +176,26 @@ def manualControl():
             elif down == 1:
                 hardware.arm_down()
 
-            if LEFT_BUMP == 1:
+            if LB == 1:
                 hardware.clamp_catch()
-            elif RIGHT_BUMP == 1:
+            elif RB == 1:
                 hardware.clamp_release()
 
-            # Send command only if it's different from the last one
             if command != prev_command:
-                getattr(hardware, command)()  # Call hardware.drive_*
+                getattr(hardware, command)()
                 prev_command = command
 
-            if command == "drive_release":
-                pass
-
-            elif command == "drive_left":
+            if command == "drive_left":
                 decision = "left"
-
             elif command == "drive_right":
                 decision = "right"
-
             elif command == "drive_forward":
                 decision = "forward"
-
             elif command == "drive_backward":
                 decision = "backward"
 
-            sleep(0.1)  # Lowered delay to improve responsiveness
-            clock.tick(30)  # Prevent CPU overuse
+            sleep(0.1)
+            clock.tick(30)
 
     except KeyboardInterrupt:
         print("Manual control stopped by user.")
@@ -231,7 +218,6 @@ def LVMAD_thread(thingToSearch=None):
                 continue
 
             handle_decision(thingToSearch)
-
             time.sleep(0.1)
 
     except Exception as e:
@@ -239,28 +225,13 @@ def LVMAD_thread(thingToSearch=None):
         traceback.print_exc()
 
 
-def handle_obstacle_avoidance(thingToSearch):
-    """Handle obstacle avoidance logic."""
-    import hardware
-
-    distance = hardware.get_distance()
-    print(f"Distance to obstacle: {distance} cm")
-    if distance and distance > 8:
-        decision = make_decision(thingToSearch)
-        drive(decision)
-    else:
-        hardware.drive_backward()
-        hardware.drive_release()
-        hardware.drive_left()
-
-
 def handle_decision(thingToSearch):
     """Handle decision-making logic."""
     decision = make_decision(thingToSearch)
-    if decision != None:
+    if decision is not None:
         drive(decision)
     else:
-        print(decision)
+        print("No decision made.")
 
 
 def make_decision(thingToSearch):
@@ -269,6 +240,7 @@ def make_decision(thingToSearch):
         return decide()
     else:
         return find(thingToSearch)
+
 
 """
 ===========================================================================================================================================
