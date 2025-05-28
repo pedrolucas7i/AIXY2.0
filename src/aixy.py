@@ -128,15 +128,15 @@ def drive(direction):
     import hardware
     from time import sleep
 
-    if direction.contains('forward'):
+    if 'forward' in direction:
         hardware.drive_forward()
-    elif direction.contains('backward'):
+    elif 'backward' in direction:
         hardware.drive_backward()
-    elif direction.contains('left'):
+    elif 'left' in direction:
         hardware.drive_left()
-    elif direction.contains('right'):
+    elif 'right' in direction:
         hardware.drive_right()
-    elif direction.contains('finded'):
+    elif 'finded' in direction:
         hardware.clamp_catch()
     hardware.drive_release()
 
@@ -262,7 +262,10 @@ def handle_obstacle_avoidance(thingToSearch):
 def handle_decision(thingToSearch):
     """Handle decision-making logic."""
     decision = make_decision(thingToSearch)
-    drive(decision)
+    if decision != None:
+        drive(decision)
+    else:
+        return
 
 
 def make_decision(thingToSearch):
