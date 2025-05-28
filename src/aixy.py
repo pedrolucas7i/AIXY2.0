@@ -67,13 +67,8 @@ def decide():
         camera.get_frame() if env.CAMERA else None
     ).lower().strip()
 
-    
-    if decision not in ['forward', 'backward', 'left', 'right', 'finded']:
-        print("Resposta inesperada:", decision)
-        return None
-    else:
-        print(f"Decided: {decision}")
-        return decision
+    print(f"Decided: {decision}")
+    return decision
 
 
 def find(thing):
