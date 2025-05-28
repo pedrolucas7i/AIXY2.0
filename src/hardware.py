@@ -50,7 +50,6 @@ def send_command(cmd):
             full_cmd = f"{cmd}\n"
             ser.write(full_cmd.encode('utf-8'))  # Encode properly to bytes
             ser.flush()  # Force immediate transmission
-            time.sleep(0.05)  # Give microcontroller time to process
 
             while True:
                 response = ser.readline().decode('utf-8', errors='replace').strip()
