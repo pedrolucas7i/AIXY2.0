@@ -260,7 +260,7 @@ def handle_decision(thingToSearch):
     if decision != None:
         drive(decision)
     else:
-        return
+        print(decision)
 
 
 def make_decision(thingToSearch):
