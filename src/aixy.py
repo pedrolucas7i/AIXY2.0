@@ -47,28 +47,25 @@ def decide():
     
     decision = llm.get(
         env.OLLAMA_VISION_MODEL,
-        f"""
-    You are the visual navigation module of a mobile robot. Based solely on the input image from the robot’s camera, you must select the safest and most appropriate movement direction.
+        """
+        Analyze the received image and determine the best action for a mobile robot based on the visible environment. Choose only one of the following words as output:
 
-    ⚠️ Output Requirements:
-    - Respond with only ONE of the following lowercase words:
-    - forward
-    - left
-    - right
-    - backward
-    - Do not include punctuation, explanations, or any additional text.
+        'backward' (Try not use this, except in danger cases)
+        'forward'
+        'left' (Default decision to avoid colisions and obstacules)
+        'right'
 
-    🎯 Decision Logic:
-    - If the path ahead is clear, prefer 'forward'.
-    - If forward is blocked, prefer 'left'.
-    - If left is blocked too, try 'right'.
-    - Only use 'backward' as a last resort when no other directions are safe.
-    - Avoid collisions at all costs — never suggest a move toward an obstacle.
+        Decide based on the following principles:
 
-    Your sole output must be one of the four valid options listed above.
-    """,
+        Avoid collisions: Never select a direction that would lead the robot into an obstacle.
+        Optimize the route: Prioritize paths that lead the robot to its destination in the most efficient and safe manner.
+        Avoid being stationary: The robot should keep moving whenever it is safe and feasible.
+        Minimize 'backward' usage: The camera does not cover this area, making this option less reliable and recommended only when no other safe solution exists.
+        Adjust speed to the environment: In open areas, increase speed; in tight spaces, slow down.
+        Provide only one word as a response, with no additional explanations.
+        """,
         camera.get_frame() if env.CAMERA else None
-    ).strip().lower()
+    ).lower()
 
     
     if decision not in ['forward', 'backward', 'left', 'right', 'finded']:
@@ -92,30 +89,35 @@ def find(thing):
         camera = Camera()
 
     decision = llm.get(
-        env.OLLAMA_VISION_MODEL,
-        f"""
-        You are a vision-based object-seeking module onboard a mobile robot. Your task is to visually locate and approach the object described as '{thing}' using the camera feed.
+        env.OLLAMA_VISION_MODEL, F"""
+        Analyze the received image and determine the best action for a mobile robot to locate and reach the object called: '{thing}'. Once the object is clearly identified and the robot is within 10 centimeters of it, respond only with the word:
 
-        ⚠️ Output Rules:
-        - Reply with ONLY ONE of the following lowercase words:
-        - forward
-        - left
-        - right
-        - backward
-        - finded (only if the object is clearly visible and within 10 centimeters)
+        'finded'
 
-        🚀 Behavior Guidelines:
-        - Analyze the visual scene to determine where the object '{thing}' is located.
-        - If the object is in view but distant, choose a direction that moves the robot closer.
-        - If the object is not visible, explore using 'left', 'right', or 'forward'.
-        - Use 'backward' only if no other direction is safe or the robot is trapped.
-        - Respond with 'finded' only if the object is directly in front of the robot and close enough to grab or interact with.
-        - Do NOT output any explanations, punctuation, or additional text.
+        Otherwise, choose and respond with only one of the following action words to guide the robot:
 
-        Respond with a single valid command word, and nothing else.
+        'backward' (Try not use this, except in danger cases)
+        'forward'
+        'left' (Default decision to avoid colisions and obstacules)
+        'right'
+
+        Decision principles:
+
+        Find the object: Prioritize paths that move toward the object '{thing}'.
+
+        Confirm proximity: When the object is visually confirmed and estimated to be within 10 cm, return only 'finded'.
+
+        Avoid collisions: Never choose a direction that would result in hitting an obstacle.
+
+        Keep moving: Do not stop unless the object is found.
+
+        Adjust speed: In open areas, prefer faster speeds; in tight or cluttered areas, go slower.
+
+        One-word output only: Return only the chosen word — no explanations or additional text.
+
         """,
         camera.get_frame() if env.CAMERA else None
-    ).strip().lower()
+    ).lower()
 
     
     print(f"Decided: {decision}")
