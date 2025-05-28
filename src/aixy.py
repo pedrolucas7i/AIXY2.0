@@ -33,17 +33,10 @@ decision = None
 """
 
 
-def decide():
+def decide(camera):
     """ Decide the action of AIXY based in camera image"""
     global decision
     import llm
-
-    if env.CAMERA_USB:
-        from camera import CameraUSB
-        camera = CameraUSB()
-    else:
-        from camera import Camera
-        camera = Camera()
     
     decision = llm.get(
         env.OLLAMA_VISION_MODEL,
@@ -71,17 +64,10 @@ def decide():
     return decision
 
 
-def find(thing):
+def find(camera, thing):
     """ Decide the action of AIXY based in camera image and the thing to search"""
     global decision
     import llm
-
-    if env.CAMERA_USB:
-        from camera import CameraUSB
-        camera = CameraUSB()
-    else:
-        from camera import Camera
-        camera = Camera()
 
     decision = llm.get(
         env.OLLAMA_VISION_MODEL, f"""
@@ -120,7 +106,9 @@ def find(thing):
 def drive(direction):
     import hardware
 
-    if 'forward' in direction:
+    if not isinstance(direction, str):
+        return
+    elif 'forward' in direction:
         hardware.drive_forward()
     elif 'backward' in direction:
         hardware.drive_backward()
@@ -209,6 +197,12 @@ def LVMAD_thread(thingToSearch=None):
     import traceback
 
     try:
+        if env.CAMERA_USB:
+            from camera import CameraUSB
+            camera = CameraUSB()
+        else:
+            from camera import Camera
+            camera = Camera()
         if env.MOTORS:
             import hardware
 
@@ -217,7 +211,7 @@ def LVMAD_thread(thingToSearch=None):
                 manualControl()
                 continue
 
-            handle_decision(thingToSearch)
+            handle_decision(camera, thingToSearch)
             time.sleep(0.1)
 
     except Exception as e:
@@ -225,21 +219,21 @@ def LVMAD_thread(thingToSearch=None):
         traceback.print_exc()
 
 
-def handle_decision(thingToSearch):
+def handle_decision(camera, thingToSearch):
     """Handle decision-making logic."""
-    decision = make_decision(thingToSearch)
+    decision = make_decision(camera, thingToSearch)
     if decision is not None:
         drive(decision)
     else:
         print("No decision made.")
 
 
-def make_decision(thingToSearch):
+def make_decision(camera, thingToSearch):
     """Make a decision based on the environment."""
     if thingToSearch is None:
-        return decide()
+        return decide(camera)
     else:
-        return find(thingToSearch)
+        return find(camera, thingToSearch)
 
 
 """
