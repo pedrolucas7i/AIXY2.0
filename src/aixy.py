@@ -517,6 +517,7 @@ def WCS_thread():
         try:
             import db
             import commands
+            import speaker
 
             if not (commands.executeCommand(question.lower())):
                 response = generate_response(question)
@@ -526,6 +527,8 @@ def WCS_thread():
                     print("No response generated.")
             else:
                 response = "Command executed!"
+            
+            speaker.speak(response) if env.TTS else None
             socketio.emit('airesponse', response)
         except Exception as e:
             socketio.emit('airesponse', f"[Error] {str(e)}")
