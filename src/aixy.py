@@ -24,6 +24,15 @@ thingToSearch = None
 additionalPrompt = None
 decision = None
 
+if env.CAMERA:
+    if env.CAMERA_USB:
+        from camera import CameraUSB
+        camera = CameraUSB()
+        print("🟢 Using USB Camera")
+    else:
+        from camera import Camera
+        camera = Camera()
+        print("🟢 Using Raspberry Pi Camera")
 """
 ===========================================================================================================================================
 ===========================================================================================================================================
@@ -33,9 +42,9 @@ decision = None
 """
 
 
-def decide(camera):
+def decide():
     """ Decide the action of AIXY based in camera image"""
-    global decision
+    global decision, camera
     import llm
     
     decision = llm.get(
@@ -57,16 +66,16 @@ def decide(camera):
         Adjust speed to the environment: In open areas, increase speed; in tight spaces, slow down.
         Provide only one word as a response, with no additional explanations.
         """,
-        camera.get_frame() if env.CAMERA else None
+        camera.get_frame()
     ).lower().strip()
 
     print(f"Decided: {decision}")
     return decision
 
 
-def find(camera, thing):
+def find(thing):
     """ Decide the action of AIXY based in camera image and the thing to search"""
-    global decision
+    global decision, camera
     import llm
 
     decision = llm.get(
@@ -96,7 +105,7 @@ def find(camera, thing):
 
         One-word output only: Return only the chosen word — no explanations or additional text.
         """,
-        camera.get_frame() if env.CAMERA else None
+        camera.get_frame()
     ).lower().strip()
 
     print(f"Decided: {decision}")
@@ -211,7 +220,7 @@ def LVMAD_thread(thingToSearch=None):
                 manualControl()
                 continue
 
-            handle_decision(camera, thingToSearch)
+            handle_decision(thingToSearch)
             time.sleep(0.1)
 
     except Exception as e:
@@ -219,21 +228,21 @@ def LVMAD_thread(thingToSearch=None):
         traceback.print_exc()
 
 
-def handle_decision(camera, thingToSearch):
+def handle_decision(thingToSearch):
     """Handle decision-making logic."""
-    decision = make_decision(camera, thingToSearch)
+    decision = make_decision(thingToSearch)
     if decision is not None:
         drive(decision)
     else:
         print("No decision made.")
 
 
-def make_decision(camera, thingToSearch):
+def make_decision(thingToSearch):
     """Make a decision based on the environment."""
     if thingToSearch is None:
-        return decide(camera)
+        return decide()
     else:
-        return find(camera, thingToSearch)
+        return find(thingToSearch)
 
 
 """

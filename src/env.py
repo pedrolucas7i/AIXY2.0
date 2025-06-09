@@ -21,34 +21,34 @@ from dotenv import load_dotenv
 import os
 
 """ Large Vision Model Automonous Drive """
-LVMAD = True
+LVMAD = False
 
 """ Large Languade Model Autonomous Conversations """
-LLMAC = True
+LLMAC = False
 
 """ Obstacle Avoidance """
-OA = True
+OA = False
 
 """ Switch Between Modes """
 SBM = False
 
 """ Web Camera Stream """
-WCS = True
+WCS = False
 
 """ Text to Speech """
-TTS = True
+TTS = False
 
 """ Speech to Text """
-STT = True
+STT = False
 
 """ ONLY MANUAL CONTROL"""
 ONLY_MANUAL_CONTROL = False
 
 """ AIXY COMMANDS """
-COMMANDS = True
+COMMANDS = False
 
 """ Motors """
-MOTORS = True
+MOTORS = False
 
 """ Camera """
 CAMERA = True

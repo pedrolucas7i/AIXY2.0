@@ -92,7 +92,7 @@ class CameraUSB:
                 cap.release()
 
         if self.cap is None or not self.cap.isOpened():
-            raise RuntimeError("❌ Error: No USB camera available (tried indices 0 to 2).")
+            raise RuntimeError("❌ Error: No USB camera available (tried indices 0 to 10).")
 
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 224)
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 224)
