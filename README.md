@@ -29,10 +29,9 @@
 - **AI Server Hardware Platform**: DELL GTX1080 8GB and Gigabyte Gaming OC RTX3060 12GB in one Intel Xeon E5-2680V4 with 32GB DDR4 ECC of RAM
 - **LLM (Large Language Model)**: [llama3.2:3b](https://ollama.com/library/llama3.2:3b)
 - **LVM (Large Vision Model)**: [llava:7b](https://ollama.com/library/llava:7b)
-- **TTS (Text to Speech)**: [gTTS](https://pypi.org/project/gTTS/)
+- **TTS (Text to Speech)**: [edge-tts](https://pypi.org/project/edge-tts/)
 - **STT (Speech to Text)**: [OpenAI Whisper](https://github.com/openai/whisper)
 - **Sensors**: Ultrasonic sensor for front distance detection, camera for computer vision
-- **Bluetooth**: Bluetooth Speaker for the voice
 - **WiFi (Hotspot)**: To access the server in many diferent areas with phone signal
 
 ---
@@ -49,10 +48,17 @@
 ├── LICENSE-OPENAI-WHISPER
 ├── README.md
 ├── scripts
-│   └── dependencies.sh
+│   ├── dependencies.sh
+│   ├── run.sh
+│   └── startup.sh
+├── service
+│   ├── aixy.service
+│   └── aixy-startup.service
 ├── src
 │   ├── aixy.py
 │   ├── camera.py
+│   ├── commands.py
+│   ├── db.py
 │   ├── env.py
 │   ├── HardwareController
 │   │   └── AIXY2.0_Hardware_Controller
@@ -61,31 +67,34 @@
 │   ├── listener.py
 │   ├── llm.py
 │   ├── main.py
+│   ├── message.mp3
 │   ├── personality.info
 │   ├── purpose.info
+│   ├── __pycache__
+│   │   ├── aixy.cpython-310.pyc
+│   │   ├── camera.cpython-310.pyc
+│   │   ├── commands.cpython-310.pyc
+│   │   ├── db.cpython-310.pyc
+│   │   ├── env.cpython-310.pyc
+│   │   ├── env.cpython-312.pyc
+│   │   ├── hardware.cpython-310.pyc
+│   │   ├── listener.cpython-310.pyc
+│   │   ├── llm.cpython-310.pyc
+│   │   └── speaker.cpython-310.pyc
 │   ├── speaker.py
 │   ├── WCS_thread
 │   │   ├── static
 │   │   │   ├── CSS
 │   │   │   │   └── style.css
 │   │   │   ├── IMG
-│   │   │   │   ├── AIXY2.0-backward.png
-│   │   │   │   ├── AIXY2.0-CATCHING.png
-│   │   │   │   ├── AIXY2.0-DIRECTION.png
-│   │   │   │   ├── AIXY2.0-DISTANCE.png
-│   │   │   │   ├── AIXY2.0-forward.png
-│   │   │   │   ├── AIXY2.0-left.png
-│   │   │   │   ├── AIXY2.0-right.png
-│   │   │   │   ├── AIXY2.0-SPEAKING.png
-│   │   │   │   ├── AIXY2.0-THINKING.png
 │   │   │   │   └── CAMERANOTFOUND.jpg
 │   │   │   └── JS
 │   │   │       └── joystick.js
 │   │   └── webserver
-│   │       └── index.html
+│   │       ├── index.html
+│   │       └── xterm.html
 │   └── xbox360_controller.py
 └── thank.you
-
 
 ```
 
