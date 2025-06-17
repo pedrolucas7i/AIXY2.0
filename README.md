@@ -115,10 +115,3 @@ The project is **still under development**, but contributions are always welcome
 This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for more details.
 
 ---
-
-## **Contact**
-
-For more information or inquiries, you can contact me via email:  
-**pedrolucas dot core7i @gmail dot com**
-
----
