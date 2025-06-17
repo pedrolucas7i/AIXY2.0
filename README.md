@@ -1,7 +1,7 @@
 
 ---
 
-# **AIXY2.0 - Intelligent Autonomous Speaking Robot**
+# **AIXY2.0 - Intelligent Autonomous Talking Robot**
 
 ![AiXY2.0](images/AiXY2.0.png)
 
