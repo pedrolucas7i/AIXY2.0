@@ -70,17 +70,6 @@
 │   ├── message.mp3
 │   ├── personality.info
 │   ├── purpose.info
-│   ├── __pycache__
-│   │   ├── aixy.cpython-310.pyc
-│   │   ├── camera.cpython-310.pyc
-│   │   ├── commands.cpython-310.pyc
-│   │   ├── db.cpython-310.pyc
-│   │   ├── env.cpython-310.pyc
-│   │   ├── env.cpython-312.pyc
-│   │   ├── hardware.cpython-310.pyc
-│   │   ├── listener.cpython-310.pyc
-│   │   ├── llm.cpython-310.pyc
-│   │   └── speaker.cpython-310.pyc
 │   ├── speaker.py
 │   ├── WCS_thread
 │   │   ├── static
