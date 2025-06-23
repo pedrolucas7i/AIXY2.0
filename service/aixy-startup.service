@@ -1,13 +1,16 @@
 [Unit]
-Description= AiXY2.0 StartUP
+Description=AIXY2.0 StartUP
 DefaultDependencies=no
+After=network-online.target
+Wants=network-online.target
 Before=multi-user.target aixy.service
 
 [Service]
 User=root
 Type=oneshot
-WorkingDirectory=/home/aixy/AIXY2.0/scripts
-ExecStart=/home/aixy/AIXY2.0/scripts/startup.sh
+WorkingDirectory=/usr/local/bin/
+ExecStart=/usr/local/bin/aixy-startup.sh
+RemainAfterExit=yes
 
 [Install]
 WantedBy=multi-user.target
