@@ -79,19 +79,15 @@ COMMANDS = [
     'flash lights',
     'reboot system',
     'turn the light on',
-    'turn the light off'
+    'turn the light off',
+    'catch the object',
+    'release object',
+    'drive forward',
+    'turn left',
+    'turn right',
+    'drive backward',
+    'stop now',
 ]
-
-if MOTORS:
-    COMMANDS += [
-        'catch the object',
-        'release object',
-        'drive forward',
-        'turn left',
-        'turn right',
-        'drive backward',
-        'stop now',
-    ]
 
 RESPONSES = [
     'centimeters to the obstacle',
@@ -101,18 +97,14 @@ RESPONSES = [
     'rebooting system...',
     'light turned on',
     'light turned off'
+    'catching the object',
+    'releasing the object',
+    'Driving forward',
+    'turning left',
+    'turning right',
+    'driving backward',
+    'stopped for 30 seconds',
 ]
-
-if MOTORS:
-    RESPONSES += [
-        'catching the object',
-        'releasing the object',
-        'Driving forward',
-        'turning left',
-        'turning right',
-        'driving backward',
-        'stopped for 30 seconds',
-    ]
 
 
 
