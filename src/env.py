@@ -96,7 +96,7 @@ RESPONSES = [
     'flashing lights',
     'rebooting system...',
     'light turned on',
-    'light turned off'
+    'light turned off',
     'catching the object',
     'releasing the object',
     'Driving forward',
