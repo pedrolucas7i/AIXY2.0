@@ -1,0 +1,6 @@
+dotenv
+opencv-python
+picamera2
+flask
+flask_socketio
+pyserial
